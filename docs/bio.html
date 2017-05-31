@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="bio-related-utilities">Bio-related utilities</h1>
+<ul>
+<li><p><a href="#bio-file-utilities">Bio file utilities</a></p>
+<ul>
+<li><p><a href="#convert-bed12-to-gtf">Convert bed12 to gtf</a></p></li>
+<li><p><a href="#convert-gtf-to-bed12">Convert gtf to bed12</a></p></li>
+<li><p><a href="#merge-bed12-files-and-remove-duplicate-entries">Merge bed12 files and remove duplicate entries</a></p></li>
+<li><p><a href="#merge-fasta-files-and-remove-duplicate-sequences">Merge fasta files and remove duplicate sequences</a></p></li>
+<li><p><a href="#get-read-length-distributions">Get read length distributions</a></p></li>
+</ul></li>
+<li><p><a href="#bio-plotting-utilities">Bio plotting utilities</a></p>
+<ul>
+<li><a href="#plotting-read-length-distributions">Plotting read length distributions</a></li>
+</ul></li>
+<li><p><a href="#other-utilities">Other utilities</a></p>
+<ul>
+<li><a href="#download-reads-from-the-short-read-archive">Download reads from the Short Read Archive</a></li>
+</ul></li>
+</ul>
+<h1 id="bio-file-utilities">Bio File Utilities</h1>
+<h2 id="convert-bed12-to-gtf">Convert bed12 to gtf</h2>
+<p>Convert a bed12 file into an equivalent gtf file. In particular, it uses the <code>thick_start</code> and <code>thick_end</code> fields to determine the CDS gtf entries. It only creates <code>exon</code> and <code>CDS</code> gtf entries. The bed columns after the standard 12 are included as attributes in the gtf file. The <code>id</code> field in the bed file is used for the <code>transcript_id</code> attribute to link exons and CDs gtf entries. The output is sorted by <code>seqname</code>, <code>start</code> and <code>end</code>.</p>
+<pre><code>bed12-to-gtf &lt;bed&gt; &lt;out&gt; [-s/--source &lt;source&gt;] [-p/--num-cpus &lt;num_cpus&gt;] [--add-gene-id]</code></pre>
+<h3 id="command-line-options">Command line options</h3>
+<ul>
+<li><p><code>bed</code>. The bed12 file. It must conform to the style expected by <code>misc.bio_utils.bed_utils</code>.</p></li>
+<li><p><code>out</code>. The output gtf file. It will conform to the style dictated by <code>misc.bio_utils.gtf_utils</code>.</p></li>
+<li><p><code>--source</code>. A string to use for the <code>source</code> column in the gtf file. Default: “<code>.</code>”</p></li>
+<li><p><code>--num-cpus</code>. The number of parallel processes to use to split the bed entries. The operation of converting from exon blocks to genome-coordinate gtf entries is not optimized and can be somewhat slow.</p></li>
+<li><p><code>--add-gene-id</code>. If this flag is given, then the <code>id</code> field will be used as the <code>gene_id</code>.</p></li>
+</ul>
+<h2 id="convert-gtf-to-bed12">Convert gtf to bed12</h2>
+<p>Convert a gtf file into an equivalent bed12 file. It created bed entries based on the <code>exon</code> features and <code>transcript_id</code> field. It then uses the <code>CDS</code> features to determine the <code>thick_start</code> and <code>thick_end</code> values for the bed file.</p>
+<pre><code>gtf-to-bed12 &lt;gtf&gt; &lt;out&gt;  [--chr-name-file &lt;chr_name_file&gt;] [--exon-feature &lt;exon_feature&gt;] [--cds-feature &lt;cds_feature&gt;] </code></pre>
+<h3 id="command-line-options-1">Command line options</h3>
+<ul>
+<li><p><code>gtf</code>. The gtf file</p></li>
+<li><p><code>out</code>. The bed12 file</p></li>
+<li><p>[<code>--chr-name-file</code>]. If given, the order in this file will be used to sort the entries’ <code>seqname</code>s. Presumably, this will be the <code>chrName.txt</code> file created by STAR. Default: <code>seqname</code>s are sorted alphabetically.</p></li>
+<li><p>[<code>--exon-feature</code>]. The <code>feature</code>s to count as “exons” for determing the transcript structures. Default: <code>exon</code></p></li>
+<li><p>[<code>--cds-feature</code>]. The <code>feature</code>s to count as “coding” regions for determining the “thick” parts of the bed entries. Default: <code>CDS</code></p></li>
+</ul>
+<h2 id="merge-bed12-files-and-remove-duplicate-entries">Merge bed12 files and remove duplicate entries</h2>
+<p>The <code>remove-duplicate-bed-entries</code> script concatenates a list of bed12+ files and removes the redundant entries. It uses the following fields to identify duplicates:</p>
+<ul>
+<li><code>seqname</code></li>
+<li><code>start</code></li>
+<li><code>end</code></li>
+<li><code>strand</code></li>
+<li><code>num_exons</code></li>
+<li><code>exon_lengths</code></li>
+<li><code>exon_genomic_relative_starts</code></li>
+</ul>
+<p>All of those fields must match exactly for two entries to count as “duplicates”. The precedence among duplicates is arbitrary. The output is sorted by <code>seqname</code>, <code>start</code>, <code>end</code> and <code>strand</code>.</p>
+<pre><code>remove-duplicate-bed-entries &lt;bed_1&gt; [&lt;bed_2&gt; ...] -o/--out &lt;out&gt; [--add-gene-id] [--compress]</code></pre>
+<h3 id="command-line-options-2">Command line options</h3>
+<ul>
+<li><p><code>bed_i</code>. The input bed12+ files.</p></li>
+<li><p><code>out</code>. The output non-redundant bed12+ file</p></li>
+<li><p>[<code>--add-gene-id</code>]. If this flag is given, then the <code>id</code> field will be used as the <code>gene_id</code> for the transcript.</p></li>
+<li><p>[<code>--compress</code>]. If this flag is given, then the output will be gzipped. <strong>N.B.</strong> The extension of <code>out</code> will not be changed, so it should already include the <code>gz</code>.</p></li>
+</ul>
+<h2 id="merge-fasta-files-and-remove-duplicate-sequences">Merge fasta files and remove duplicate sequences</h2>
+<p>The <code>remove-duplicate-sequences</code> script merges a list of fasta files and removes the redundant sequences. “Redundant” here means “exactly the same.” There is no approximate string matching, etc.</p>
+<pre><code>remove-duplicate-sequences &lt;fasta_1&gt; [&lt;fasta_2&gt; ...] -o/--out &lt;out&gt; [--compress] [-l/--lower-precedence-re &lt;lower_precedence_re&gt;</code></pre>
+<h3 id="command-line-options-3">Command line options</h3>
+<ul>
+<li><p><code>fasta_i</code>. The input fasta files.</p></li>
+<li><p><code>out</code>. The output fasta file</p></li>
+<li><p>[<code>--compress</code>]. If this flag is given, then the output will be gzipped. <strong>N.B.</strong> The extension of <code>out</code> will not be changed, so it should already include the <code>gz</code>.</p></li>
+<li><p>[<code>--lower-precedence-re</code>]. If this is given, then identifers which <em>no not</em> match this regular expression will be kept when two sequences are found to be duplicates. For example, this could be used to prefer identifiers based on Ensemble annotations rather than <em>de novo</em> assemblies (e.g., the re could be “<code>TCONS.*</code>”).</p></li>
+</ul>
+<h2 id="merge-isoforms">Merge isoforms</h2>
+<p>Merge groups of gtf features into non-overlapping entries. If the groups are based on merging CDSs of genes, then this operation is equivalent to merging all transcript isoforms of that gene into a “super” transcript which comprises all isoforms of the gene.</p>
+<pre><code>merge-isoforms &lt;gtf&gt; &lt;out&gt; [--feature-type &lt;feature_type&gt;] [--group-attribute &lt;group_attribute&gt;] [--id-format-str &lt;id_format_str&gt;] [--chr-name-file &lt;chr_name_file&gt;] [--add-exons]</code></pre>
+<h3 id="command-line-options-4">Command line options</h3>
+<ul>
+<li><p><code>gtf</code>. The gtf file</p></li>
+<li><p><code>out</code>. The (output) gtf file with specified features of the specified groups merged.</p></li>
+<li><p>[<code>--feature-type</code>]. The type of <code>feature</code> (third column) to merge. Default: <code>CDS</code>. Other reasonable choices: <code>exon</code></p></li>
+<li><p>[<code>--group-attribute</code>]. The attribute used to create the groups. Default: <code>gene_id</code>. Other reasonable choices: <code>transcript_id</code>, <code>gene_name</code>.</p></li>
+<li><p>[<code>--id-format-str</code>]. A python string to use for the identifiers. The first <code>{}</code> will be replaced with the value from the <code>group_attribute</code>. Default: <code>{}.merged</code>.</p></li>
+<li><p>[<code>--chr-name-file</code>]. If given, the order in this file will be used to sort the entries’ <code>seqname</code>s. Presumably, this will be the <code>chrName.txt</code> file created by STAR. Default: <code>seqname</code>s are sorted alphabetically.</p></li>
+<li><p>[<code>--add-exons</code>]. If this flag is given, then all features will be duplicated but with the <code>feature</code> type <code>exon</code>. Presumably, this should be given when <code>CDS</code> features are merged and the resulting gtf file will be used by STAR (or anything else expecting <code>exon</code>s).</p></li>
+</ul>
+<h2 id="get-read-length-distributions">Get read length distributions</h2>
+<p>Count the number of unique reads in a set of files. All of the files must have the same type (see below for valid types). In the case of bam files, the script only counts primary alignments. Thus, it does not double-count multimappers, and unmapped reads are not included in the distribution.</p>
+<pre><code>get-read-length-distribution &lt;file_1&gt; [&lt;file_2&gt; ...] -o/--out &lt;out&gt; [-f/--file-type &lt;file_type&gt;</code></pre>
+<h3 id="command-line-options-5">Command line options</h3>
+<ul>
+<li><p><code>file_i</code>. The files for which read length distributions will be found.</p></li>
+<li><p><code>out</code>. The output (csv.gz) file which will contain the length and counts of each file. In particular, it will have the columns: <code>basename</code>, <code>length</code>, <code>count</code>, where <code>basename</code> is the name of the file, excluding the final extension.</p></li>
+<li><p>[<code>--file-type</code>]. The type of the files. All files must be of the same type. If <code>AUTO</code> is given, then the type is guess based on the extension of the first file. Please use the <code>--help</code> flag to see more information about how the file types are guessed. Default: <code>AUTO</code>. Choices: <code>AUTO</code>, <code>bam</code>, <code>fasta</code> or <code>fastq</code></p></li>
+</ul>
+<h1 id="bio-plotting-utilities">Bio plotting utilities</h1>
+<h2 id="plotting-read-length-distributions">Plotting read length distributions</h2>
+<p>Create bar charts of the length distributions created by <a href="#get-read-length-distributions"><code>get-read-length-distributions</code></a>.</p>
+<pre><code>plot-read-length-distribution &lt;length_distribution&gt; &lt;basename&gt; &lt;out&gt; [--title &lt;title&gt;] [--min-read-length &lt;min_read_length&gt;] [--max-read-length &lt;max_read_length&gt;] [--ymax &lt;ymax&gt;] [--fontsize &lt;fontsize&gt;]</code></pre>
+<h3 id="command-line-options-6">Command line options</h3>
+<ul>
+<li><p><code>length_distribution</code>. The file created by <a href="#get-read-length-distributions"><code>get-read-length-distributions</code></a></p></li>
+<li><code>basename</code>. The “basename” of the sample to plot, as given in <code>length_distribution</code>. Alternatively, <code>ALL</code> can be given, and the plot will include all of the samples as a factor plot.</li>
+<li><code>out</code>. The output filename. The extension should be something which matplotlib can interpret, such as “pdf” or “png”.</li>
+<li>[<code>--title</code>]. An optional title included at the top of the plot.</li>
+<li>[<code>--{min,max}-read-length</code>]. Optionally, reads lengths above or below the given thresholds will not be shown. Default: All read lengths are shown.</li>
+<li>[<code>--ymax</code>]. The maximum for the y-axis in the bar charts. Default: the maximum values will be selected based on the maximum count in the data.</li>
+<li><p>[<code>--fontsize</code>]. The size of the fonts in the plots.</p></li>
+</ul>
+<h1 id="other-utilities">Other Utilities</h1>
+<h2 id="download-reads-from-the-short-read-archive">Download reads from the Short Read Archive</h2>
+<p>The <code>download-srr-files</code> script can be used to retrieve sequencing runs from the SRA (or ENA). It can download from either the NCBI or EBI sites. Primarily, the script needs the <code>SraRunInfo.csv</code> file for the relevant “Bio Project”. In particular, the “Run” accessions are required for downloading files.</p>
+<p>The easiest (maybe) way to find this file is as follows.</p>
+<ol type="1">
+<li><p>Browse to the BioProject page on NCBI or EBI.</p></li>
+<li><p>Select “SRA” from the “Related Information” box.</p></li>
+<li><p>Check the boxes for all of the desired samples.</p></li>
+<li><p>Click the “Send to:” link at the bottom of the page.</p></li>
+<li><p>Choose “File” as the destination and “RunInfo” as the format.</p></li>
+<li><p>Click “Create File”.</p></li>
+</ol>
+<p>In addition to downloading the sequence files in <code>sra</code> format, the script extracts them to <code>fastq.gz</code> files and removes the <code>sra</code> files.</p>
+<p>This script requires the <code>fastq-dump</code> program from the SRA toolkit to be in the <code>$PATH</code>.</p>
+<p>The main advantage of this script compared to the Aspera client <code>ascp</code> used by default by the SRA toolkit is that it works over standard FTP. Many firewalls block non-standard ports, so <code>ascp</code> can have difficult connecting from many (or, at least, my) university, etc. settings.</p>
+<p>Also, by using the SraRunInfo.csv (or similar) file, lengthy command line calls can be avoided, which improves reproducibility.</p>
+<pre><code>download-srr-files &lt;run_info&gt; &lt;outdir&gt; [-a/--accession-field &lt;accession_field&gt;] [-p/--paired-field &lt;paired_field&gt;] [-v/--paired-values &lt;value_1&gt; [&lt;value_2&gt; ...]] [-s/--source {ebi,ncbi}] [--overwrite] [--sep &lt;sep&gt;] [--num-cpus &lt;num_cpus]</code></pre>
+<h3 id="command-line-options-7">Command line options</h3>
+<ul>
+<li><p><code>run_info</code>. The SraRunInfo.csv file, or any other file which includes the run accessions. These are typically of the form “SRR…”</p></li>
+<li><p><code>outdir</code>. The location for the <code>fastq.gz</code> files. This path should already exist.</p></li>
+<li><p>[<code>--accession-field</code>]. The field (column) containing the run accessions. Default: “Run”</p></li>
+<li><p>[<code>--paired-field</code>]. The field indicating whether the sample is paired-end. Default: “LibraryLayout”</p></li>
+<li><p>[<code>--paired-values</code>]. The values in <code>paired_field</code> which indicate that the sample is paired-end. Default: [“PAIRED”]</p></li>
+<li><p>[<code>--source</code>]. The remote server from which the files will be downloaded. Default: “ebi”</p></li>
+<li><p>[<code>--overwrite</code>]. By default, files which already exist will not be downloaded again. If this flag is present, all files will be re-downloaded.</p></li>
+<li><p>[<code>--sep</code>]. The separator in the <code>run_info</code> file. Default: “”</p></li>
+<li><p>[<code>--num-cpus</code>]. The number of simultaneous connections. Each connection runs as a separate process. Default: 1</p></li>
+</ul>
+</body>
+</html>
