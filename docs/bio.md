@@ -38,10 +38,10 @@ bed12-to-gtf <bed> <out> [-s/--source <source>] [-p/--num-cpus <num_cpus>] [--ad
 ### Command line options
 
 * `bed`. The bed12 file. It must conform to the style expected by
-  `misc.bio_utils.bed_utils`.
+  `bio_utils.bed_utils`.
 
 * `out`. The output gtf file. It will conform to the style dictated by
-  `misc.bio_utils.gtf_utils`.
+  `bio_utils.gtf_utils`.
 
 * `--source`. A string to use for the `source` column in the gtf file.
   Default: "`.`"

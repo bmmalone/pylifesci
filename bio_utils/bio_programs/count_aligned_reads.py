@@ -4,7 +4,7 @@ import argparse
 
 import pandas as pd
 
-import misc.bio_utils.bam_utils as bam_utils
+import bio_utils.bam_utils as bam_utils
 import misc.utils as utils
 
 import logging

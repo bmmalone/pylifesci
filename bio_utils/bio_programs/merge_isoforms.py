@@ -10,9 +10,9 @@ import pandas as pd
 import shlex
 import sys
 
-import misc.bio as bio
-import misc.bio_utils.bed_utils as bed_utils
-import misc.bio_utils.gtf_utils as gtf_utils
+import bio_utils.bio as bio
+import bio_utils.bed_utils as bed_utils
+import bio_utils.gtf_utils as gtf_utils
 import misc.logging_utils as logging_utils
 import misc.parallel as parallel
 import misc.slurm as slurm

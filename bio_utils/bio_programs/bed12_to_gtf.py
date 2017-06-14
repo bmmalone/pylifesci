@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 import pandas as pd
 
-import misc.bio_utils.bed_utils as bed_utils
-import misc.bio_utils.gtf_utils as gtf_utils
+import bio_utils.bed_utils as bed_utils
+import bio_utils.gtf_utils as gtf_utils
 
 import misc.parallel as parallel
 
@@ -25,9 +25,9 @@ def main():
         "attributes in the gtf file.")
 
     parser.add_argument('bed', help="The bed12 file. It must conform to the "
-        "style expected by misc.bio_utils.bed_utils.")
+        "style expected by bio_utils.bed_utils.")
     parser.add_argument('out', help="The (output) gtf file. It will conform "
-        "to the style dictated by misc.bio_utils.gtf_utils.")
+        "to the style dictated by bio_utils.gtf_utils.")
 
     parser.add_argument('-s', '--source', help="The name to use for the "
         "\"source\" column in the gtf file", default=default_source)

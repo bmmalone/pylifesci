@@ -2,7 +2,7 @@
 
 import argparse
 
-import misc.bio_utils.bed_utils as bed_utils
+import bio_utils.bed_utils as bed_utils
 
 import logging
 import misc.logging_utils as logging_utils
@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description="The script \downcasts\" a bed12+ file to a bed12 file. "
         "Optionally, it can down cast to fewer columns. By default, it also "
-        "names the columns (using bed comments) according to misc.bio_utils."
+        "names the columns (using bed comments) according to bio_utils."
         "bed_utils.bed12_field_names.")
 
     parser.add_argument('bed', help="The bed12+ file")

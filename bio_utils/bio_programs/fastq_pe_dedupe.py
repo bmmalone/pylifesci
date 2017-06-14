@@ -3,7 +3,7 @@
 import argparse
 
 import collections
-import misc.bio_utils.fastx_utils as fastx_utils
+import bio_utils.fastx_utils as fastx_utils
 import misc.utils as utils
 import tqdm
 

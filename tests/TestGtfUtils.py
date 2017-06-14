@@ -1,5 +1,5 @@
 ###
-#   This class contains unit and integration tests for misc.bio_utils.gtf_utils.
+#   This class contains unit and integration tests for bio_utils.gtf_utils.
 #   The structure of this file is taken from an old blog post here:
 #       http://blog.jameskyle.org/2010/10/nose-unit-testing-quick-start/
 ###
@@ -7,8 +7,8 @@
 import numpy as np
 import pandas as pd
 
-import misc.bio_utils.bed_utils as bed_utils
-import misc.bio_utils.gtf_utils as gtf_utils
+import bio_utils.bed_utils as bed_utils
+import bio_utils.gtf_utils as gtf_utils
 
 import pandas.util.testing
 
