@@ -19,5 +19,5 @@ Please see the [docs](docs/bio.md) for details about the command line usage.
 The `bio_utils` package can be removed with pip.
 
 ```
-pip3 uninstall misc bio_utils
+pip3 uninstall bio_utils
 ```

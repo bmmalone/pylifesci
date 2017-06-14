@@ -36,8 +36,8 @@
 <pre><code>bed12-to-gtf &lt;bed&gt; &lt;out&gt; [-s/--source &lt;source&gt;] [-p/--num-cpus &lt;num_cpus&gt;] [--add-gene-id]</code></pre>
 <h3 id="command-line-options">Command line options</h3>
 <ul>
-<li><p><code>bed</code>. The bed12 file. It must conform to the style expected by <code>misc.bio_utils.bed_utils</code>.</p></li>
-<li><p><code>out</code>. The output gtf file. It will conform to the style dictated by <code>misc.bio_utils.gtf_utils</code>.</p></li>
+<li><p><code>bed</code>. The bed12 file. It must conform to the style expected by <code>bio_utils.bed_utils</code>.</p></li>
+<li><p><code>out</code>. The output gtf file. It will conform to the style dictated by <code>bio_utils.gtf_utils</code>.</p></li>
 <li><p><code>--source</code>. A string to use for the <code>source</code> column in the gtf file. Default: “<code>.</code>”</p></li>
 <li><p><code>--num-cpus</code>. The number of parallel processes to use to split the bed entries. The operation of converting from exon blocks to genome-coordinate gtf entries is not optimized and can be somewhat slow.</p></li>
 <li><p><code>--add-gene-id</code>. If this flag is given, then the <code>id</code> field will be used as the <code>gene_id</code>.</p></li>

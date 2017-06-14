@@ -4,8 +4,8 @@ import argparse
 import logging
 import pandas as pd
 
-import misc.bio as bio
-import misc.bio_utils.bed_utils as bed_utils
+import bio_utils.bio as bio
+import bio_utils.bed_utils as bed_utils
 import misc.parallel as parallel
 import misc.logging_utils as logging_utils
 import misc.utils as utils

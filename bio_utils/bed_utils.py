@@ -1521,7 +1521,7 @@ def get_all_position_intersections(positions_bed, intervals_bed, logger=logger):
 
             logger (logging.logger): optionally, a non-default logger can be
                 given, in which case it will be used for logging. Otherwise,
-                the misc.bio_utils.bed_utils logger will be used.
+                the bio_utils.bed_utils logger will be used.
 
         Returns:
             A list of named 4-tuples with the following names and values:
@@ -2652,14 +2652,14 @@ def get_all_bed_sequences(bed, fasta_file, split_exons=True, progress_bar=True):
         Imports:
             numpy
             Bio.Seq (from biopython)
-            misc.bio
+            bio_utils.bio
             misc.parallel
 
         raises:
             ValueError: if the number of columns does not work
     """
-    import misc.bio as bio
-    import misc.bio_utils.fastx_utils as fastx_utils
+    import bio_utils.bio as bio
+    import bio_utils.fastx_utils as fastx_utils
     import misc.parallel as parallel
 
     if isinstance(bed, str):
@@ -2864,7 +2864,7 @@ def read_bam_as_bed(bam, progress_bar=True, logger=logger):
     import pysam
     import tqdm
 
-    import misc.bio_utils.bam_utils as bam_utils
+    import bio_utils.bam_utils as bam_utils
 
     # first, make sure we have an alignment file
     bam = bam_utils.get_pysam_alignment_file(bam)

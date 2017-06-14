@@ -36,7 +36,7 @@ def read_gtf(filename, sep='\t', comment='#', field_names=None,
                 pandas.read_csv
 
             use_default_field_names (bool) : if this is true, then the column
-                names in misc.bio.gtf_field_names will be used
+                names in bio_utils.bio.gtf_field_names will be used
 
             field_names (list of strings) : if use_default_field_names is false,
                 then the columns in the data frame will have these names
@@ -121,7 +121,7 @@ def _get_gtf_entries(bed_entry, feature_type:str, source:str=None,
     The attributes for the gtf entries are taken as: "{field} {val}; ", where
     {col} is the name of the field and {val} is the respective value for all
     fields in bed_entry except for the standard bed12 fields (given by 
-    misc.bio_utils.bed_utils.bed12_field_names).
+    bio_utils.bed_utils.bed12_field_names).
     
     Additionally, if id_attribute is specified, then the "id" field in
     the bed entry will be used as the value for that attribute.
@@ -150,7 +150,7 @@ def _get_gtf_entries(bed_entry, feature_type:str, source:str=None,
     import shlex
     import numpy as np
     import pandas as pd
-    import misc.bio_utils.bed_utils as bed_utils
+    import bio_utils.bed_utils as bed_utils
 
     # get the attributes
 
@@ -223,7 +223,7 @@ def get_gtf_entries(bed_entry, source:str, id_attribute:str="transcript_id"):
     The attributes for the gtf entries are taken as: "{field} {val}; ", where
     {col} is the name of the field and {val} is the respective value for all
     fields in bed_entry except for the standard bed12 fields (given by 
-    misc.bio_utils.bed_utils.bed12_field_names).
+    bio_utils.bed_utils.bed12_field_names).
     
     Additionally, if id_attribute is specified, then the "id" field in
     the bed entry will be used as the value for that attribute.
@@ -253,7 +253,7 @@ def get_gtf_entries(bed_entry, source:str, id_attribute:str="transcript_id"):
         * The order of the columns is the same as gtf_utils.gtf_field_names
     """
     import pandas as pd
-    import misc.bio_utils.bed_utils as bed_utils
+    import bio_utils.bed_utils as bed_utils
     
     gtf_exons = _get_gtf_entries(bed_entry, "exon", source)
 

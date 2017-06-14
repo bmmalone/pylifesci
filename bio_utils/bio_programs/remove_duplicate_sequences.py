@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-import misc.bio_utils.fastx_utils as fastx_utils
+import bio_utils.fastx_utils as fastx_utils
 
 import misc.logging_utils as logging_utils
 import misc.utils as utils

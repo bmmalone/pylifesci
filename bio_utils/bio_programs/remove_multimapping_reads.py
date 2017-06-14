@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import argparse
-import misc.bio_utils.bam_utils as bam_utils
+import bio_utils.bam_utils as bam_utils
 
 import logging
 import misc.logging_utils as logging_utils
