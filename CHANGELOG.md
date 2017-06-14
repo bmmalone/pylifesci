@@ -4,6 +4,12 @@ All notable changes to the misc tools will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/), 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.1] - 2017-06-14
+### Fixed
+- All references to `misc.bio` and `misc.bio_utils`. Please see
+  [Issue #1](https://github.com/bmmalone/pybio-utils/issues/1) in the new repo
+  for more details.
+
 ## [0.2.0] - 2017-05-31
 This is a new version which moves the project from Bitbucket to GitHub.
 Additionally, the other utilities (`misc.***`) have been completely
