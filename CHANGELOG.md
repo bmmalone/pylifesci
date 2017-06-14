@@ -4,6 +4,10 @@ All notable changes to the misc tools will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/), 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.2] - 2017-06-14
+### Fixed
+- References to old gtf functions in `misc.bio`
+
 ## [0.2.1] - 2017-06-14
 ### Fixed
 - All references to `misc.bio` and `misc.bio_utils`. Please see
