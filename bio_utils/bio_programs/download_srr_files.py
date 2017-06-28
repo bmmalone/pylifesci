@@ -7,8 +7,8 @@ import pandas as pd
 import sys
 
 import misc.parallel as parallel
+import misc.shell_utils as shell_utils
 import misc.slurm as slurm
-import misc.utils as utils
 
 import logging
 import misc.logging_utils as logging_utils
@@ -136,8 +136,13 @@ def download_sra_file(row, args):
         return
     
     try:
+        msg = "Changing directories on the server"
+        logger.debug(msg)
         ftp.cwd(path)
+
         with open(local_sra_file, 'wb') as local_file:
+            msg = "Retrieving the binary file"
+            logger.debug(msg)
             ftp.retrbinary("RETR " + filename, local_file.write)
     except:
         msg = "There was a problem downloading: {}".format(filename)
@@ -196,7 +201,7 @@ def extract_sra_file(row, args):
         "--clip --origfmt".format(outdir_str, split_files_str, local_sra_file))
 
     try:
-        ret = utils.check_call(cmd)
+        ret = shell_utils.check_call(cmd)
     except:
         # just set the return code to something we will catch later
         ret = -1
@@ -265,7 +270,7 @@ def main():
     programs = [
         'fastq-dump'
     ]
-    utils.check_programs_exist(programs)
+    shell_utils.check_programs_exist(programs)
     
     # check if we want to use slurm
     if args.use_slurm:
