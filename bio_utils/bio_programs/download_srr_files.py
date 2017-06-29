@@ -124,39 +124,11 @@ def download_sra_file(row, args):
     msg = "Downloading {} : {}".format(path, filename)
     logger.info(msg)
 
-    msg = "Opening server connection"
-    logger.info(msg)
-
     try:
-        ftp = ftplib.FTP(server) 
-        ftp.login()
-    except:
-        msg = "There was a problem opening the connection. Skipping."
-        logger.warning(msg)
-        return
-    
-    try:
-        msg = "Changing directories on the server"
-        logger.debug(msg)
-        ftp.cwd(path)
-
-        with open(local_sra_file, 'wb') as local_file:
-            msg = "Retrieving the binary file"
-            logger.debug(msg)
-            ftp.retrbinary("RETR " + filename, local_file.write)
+        remote_path = "http://" + server + os.path.join(path, filename)
+        shell_utils.download_file(remote_path, local_filename=local_sra_file)
     except:
         msg = "There was a problem downloading: {}".format(filename)
-        logger.warning(msg)
-
-    msg = "Closing server connection"
-    logger.info(msg)
-
-    try:
-        ftp.quit()
-    except:
-        msg = ("There was a problem closing the connection. This "
-            "seems to happen if it is inactive for too long or "
-            "other non-fatal problems. Continuing.")
         logger.warning(msg)
 
 def extract_sra_file(row, args):
