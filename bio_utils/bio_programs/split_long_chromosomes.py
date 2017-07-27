@@ -7,7 +7,8 @@ import logging
 import numpy as np
 import pandas as pd
 
-import misc.bio as bio
+import bio_utils.bio as bio
+import bio_utils.gtf_utils as gtf_utils
 import misc.utils as utils
 
 import argparse
@@ -60,7 +61,7 @@ def main():
     msg = "Reading GTF"
     logging.info(msg)
 
-    gtf = bio.read_gtf(args.gtf)
+    gtf = gtf_utils.read_gtf(args.gtf)
 
     msg = "Updating GTF coordinates"
     logging.info(msg)
@@ -103,7 +104,7 @@ def main():
     logging.info(msg)
 
     gtf_out = "{}.gtf".format(args.out)
-    bio.write_gtf(gtf, gtf_out, compress=False)
+    gtf_utils.write_gtf(gtf, gtf_out, compress=False)
 
 
 if __name__ == '__main__':

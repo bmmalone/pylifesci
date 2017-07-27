@@ -7,8 +7,8 @@ import pandas as pd
 import sys
 
 import misc.parallel as parallel
+import misc.shell_utils as shell_utils
 import misc.slurm as slurm
-import misc.utils as utils
 
 import logging
 import misc.logging_utils as logging_utils
@@ -124,34 +124,11 @@ def download_sra_file(row, args):
     msg = "Downloading {} : {}".format(path, filename)
     logger.info(msg)
 
-    msg = "Opening server connection"
-    logger.info(msg)
-
     try:
-        ftp = ftplib.FTP(server) 
-        ftp.login()
-    except:
-        msg = "There was a problem opening the connection. Skipping."
-        logger.warning(msg)
-        return
-    
-    try:
-        ftp.cwd(path)
-        with open(local_sra_file, 'wb') as local_file:
-            ftp.retrbinary("RETR " + filename, local_file.write)
+        remote_path = "http://" + server + os.path.join(path, filename)
+        shell_utils.download_file(remote_path, local_filename=local_sra_file)
     except:
         msg = "There was a problem downloading: {}".format(filename)
-        logger.warning(msg)
-
-    msg = "Closing server connection"
-    logger.info(msg)
-
-    try:
-        ftp.quit()
-    except:
-        msg = ("There was a problem closing the connection. This "
-            "seems to happen if it is inactive for too long or "
-            "other non-fatal problems. Continuing.")
         logger.warning(msg)
 
 def extract_sra_file(row, args):
@@ -196,7 +173,7 @@ def extract_sra_file(row, args):
         "--clip --origfmt".format(outdir_str, split_files_str, local_sra_file))
 
     try:
-        ret = utils.check_call(cmd)
+        ret = shell_utils.check_call(cmd)
     except:
         # just set the return code to something we will catch later
         ret = -1
@@ -265,7 +242,7 @@ def main():
     programs = [
         'fastq-dump'
     ]
-    utils.check_programs_exist(programs)
+    shell_utils.check_programs_exist(programs)
     
     # check if we want to use slurm
     if args.use_slurm:

@@ -36,7 +36,7 @@ def read_gtf(filename, sep='\t', comment='#', field_names=None,
                 pandas.read_csv
 
             use_default_field_names (bool) : if this is true, then the column
-                names in bio_utils.bio.gtf_field_names will be used
+                names in bio_utils.gtf_field_names will be used
 
             field_names (list of strings) : if use_default_field_names is false,
                 then the columns in the data frame will have these names

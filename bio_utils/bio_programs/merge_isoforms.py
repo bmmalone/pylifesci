@@ -29,7 +29,7 @@ default_id_format_str = "{}.merged"
 default_chr_name_file = None
 
 def parse_attributes_group(rows):
-    res = parallel.apply_df_simple(rows, bio.parse_gtf_attributes)
+    res = parallel.apply_df_simple(rows, gtf_utils.parse_gtf_attributes)
     res = pd.DataFrame(res)
     return res
 
@@ -96,7 +96,7 @@ def merge_gene_group(g, transcript_id_field, transcript_id_format_str):
     attributes = '; '.join(attributes)    
     merged_df['attributes'] = attributes
     
-    return merged_df[bio.gtf_field_names]
+    return merged_df[gtf_utils.gtf_field_names]
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
