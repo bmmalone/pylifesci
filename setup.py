@@ -42,7 +42,7 @@ def readme():
         return f.read()
 
 setup(name='bio-utils',
-        version='0.2.3',
+        version='0.2.4',
         description="This repo contains python3 bioinformatics utilities I find useful.",
         long_description=readme(),
         keywords="utilities",
