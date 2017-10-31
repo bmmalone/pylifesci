@@ -4,6 +4,10 @@ All notable changes to the misc tools will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/), 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.5] - In progress
+### Updated
+- Remove deprecated function call from `mygene_utils`
+
 ## [0.2.4] - 2017-10-26
 ### Updated
 - Version specifications for prereqs
