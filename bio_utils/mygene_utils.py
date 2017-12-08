@@ -219,6 +219,7 @@ def query_mygene(gene_ids, species='all', scopes=None, unique_only=True,
     import functools
     import pandas as pd
     import mygene
+    import misc.pandas_utils as pd_utils
     import misc.parallel as parallel
     import misc.utils as utils
 
@@ -293,10 +294,19 @@ def query_mygene(gene_ids, species='all', scopes=None, unique_only=True,
     res_df = res_df.fillna('')
     
     # fix the string vs. list of string fields
-    res_df['trembl'] = parallel.apply_df_simple(res_df, utils.pandas_join_string_list, 'trembl')
-    res_df['pdb'] = parallel.apply_df_simple(res_df, utils.pandas_join_string_list, 'pdb')
-    res_df['pfam'] = parallel.apply_df_simple(res_df, utils.pandas_join_string_list, 'pfam')
-    res_df['prosite'] = parallel.apply_df_simple(res_df, utils.pandas_join_string_list, 'prosite')
+    sep_join = lambda l: ";".join(l)
+
+    res_df['trembl'] = res_df['trembl'].apply(utils.wrap_string_in_list)
+    res_df['trembl'] = res_df['trembl'].apply(sep_join)
+
+    res_df['pdb'] = res_df['pdb'].apply(utils.wrap_string_in_list)
+    res_df['pdb'] = res_df['pdb'].apply(sep_join)
+
+    res_df['pfam'] = res_df['pfam'].apply(utils.wrap_string_in_list)
+    res_df['pfam'] = res_df['pfam'].apply(sep_join)
+
+    res_df['prosite'] = res_df['prosite'].apply(utils.wrap_string_in_list)
+    res_df['prosite'] = res_df['prosite'].apply(sep_join)
     
     msg = "Finished compiling mygene annotations"
     logger.info(msg)
