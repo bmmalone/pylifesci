@@ -17,13 +17,19 @@ import tqdm
 import pysam
 from Bio.Seq import reverse_complement
 
-import pyllars.utils    
+import pyllars.collection_utils as collection_utils
 import pyllars.math_utils as math_utils
-import misc.parallel as parallel
+import pyllars.pandas_utils as pd_utils
+import pyllars.validation_utils as validation_utils
+import pyllars.utils    
+
+
+import bio_utils.bam_utils as bam_utils
 import bio_utils.bio as bio
 import bio_utils.fastx_utils as fastx_utils
 
-import bio_utils.bam_utils as bam_utils
+
+import misc.parallel as parallel
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +125,7 @@ def write_bed(data_frame, filename, compress=True, **kwargs):
     do_not_compress = not compress
 
     header = ['#{}'.format(c) for c in data_frame.columns]
-    misc.utils.write_df(data_frame, filename, index=False, sep='\t', 
+    pd_utils.write_df(data_frame, filename, index=False, sep='\t', 
         header=header, do_not_compress=do_not_compress, quoting=csv.QUOTE_NONE, **kwargs)
 
 def get_bed_df(bed):
@@ -269,7 +275,7 @@ def parse_exon_start_end_length(exon, delimiter='-'):
     if length < 0:
         msg = ("The length for the exon was negative: '{}'. Please ensure the coordinates "
                    "follow the BED conventions in which the \"smaller\" coordinate always "
-                   "comes first, regardless of the strand of the feature.".format(exons[0]))
+                   "comes first, regardless of the strand of the feature.".format(exon))
         
         raise ValueError(msg)
         
@@ -640,7 +646,7 @@ def split_bed12(bed_df, num_cpus=1, progress_bar=False):
         split_bed12_blocks,
         progress_bar=progress_bar)
 
-    exons_flat = utils.flatten_lists(exons)
+    exons_flat = collection_utils.flatten_lists(exons)
     exons_df = pd.DataFrame(exons_flat)
 
 
@@ -1457,7 +1463,7 @@ def get_position_intersections(positions, interval_starts, interval_ends,
 
             next_exon_start = interval_starts[next_exon_index]
             
-    matches = utils.flatten_lists(matches)
+    matches = collection_utils.flatten_lists(matches)
     #matches = np.array(matches, dtype=position_interval_intersection)
     return matches
 
@@ -1532,7 +1538,7 @@ def get_all_position_intersections(positions_bed, intervals_bed, logger=logger):
             
             all_matches.append(matches)
             
-    all_matches = utils.flatten_lists(all_matches)
+    all_matches = collection_utils.flatten_lists(all_matches)
     return all_matches
 
 ###
@@ -2121,8 +2127,8 @@ def get_transcript_overlap_fractions(transcript_overlaps, a_lengths_map, b_lengt
                 fraction of each transcript covered by that overlap
     """
     # check the overlap fractions
-    math_utils.check_range(min_a_overlap, 0, 1, variable_name="min_a_overlap")
-    math_utils.check_range(min_b_overlap, 0, 1, variable_name="min_b_overlap")
+    validation_utils.check_range(min_a_overlap, 0, 1, variable_name="min_a_overlap")
+    validation_utils.check_range(min_b_overlap, 0, 1, variable_name="min_b_overlap")
 
     transcript_fractions = []
     for (a_info, b_info), overlap in transcript_overlaps.items():
@@ -2210,8 +2216,8 @@ def get_bed_overlaps(bed_a, bed_b, min_a_overlap=0, min_b_overlap=0, exons=None,
     bed_a, bed_b = _get_bed_exons(bed_a, bed_b, exons, exons_a, exons_b)
     
     # check the overlap fractions
-    math_utils.check_range(min_a_overlap, 0, 1, variable_name="min_a_overlap")
-    math_utils.check_range(min_b_overlap, 0, 1, variable_name="min_b_overlap")
+    validation_utils.check_range(min_a_overlap, 0, 1, variable_name="min_a_overlap")
+    validation_utils.check_range(min_b_overlap, 0, 1, variable_name="min_b_overlap")
     
     # first, get the total lengths of all transcripts
     bed_a['length'] = bed_a['end'] -  bed_a['start']
@@ -2538,7 +2544,7 @@ def get_bed_sequence(bed_entry, seq_sequence, split_exons=True):
         
     return (header, transcript_sequence)
 
-def get_all_bed_sequences(bed, fasta_file, split_exons=True, progress_bar=True):
+def get_all_bed_sequences(bed, fasta_file, bed_4=False, split_exons=True, progress_bar=True):
     """ This function extracts all of the sequences for entries in the given
         bed file. It is mostly a wrapper around get_bed_sequence, so please see
         that function for more information.
@@ -2549,6 +2555,9 @@ def get_all_bed_sequences(bed, fasta_file, split_exons=True, progress_bar=True):
 
             fasta_file (string): the path to the fasta file containing the
                 chromosome sequences
+
+            bed_4 : bool
+                Whether to treat the file as a BED4 or BED12 file
 
             split_exons (bool): whether to split the exons of the bed entries
 
@@ -2574,7 +2583,7 @@ def get_all_bed_sequences(bed, fasta_file, split_exons=True, progress_bar=True):
         msg = "The bed file must contain at least four columns."
         raise ValueError(msg)
         
-    if (num_columns < 12) and (not args.bed_4):
+    if (num_columns < 12) and (not bed_4):
         msg = ("The bed file must contain at least twelve columns unless the "
             "--bed4 flag is given.")
         raise ValueError(msg)
@@ -2677,7 +2686,7 @@ def sort(bed, seqname_order=None, transcript_ids=None):
 
             else:
                 msg = ("The chr_name_file was specified, but the file does not "
-                    "exist: {}".format(args.chr_name_file))
+                    "exist: {}".format(seqname_order))
                 raise FileNotFoundError(msg)
 
         seqname_order_map = {c: i for i, c in enumerate(seqname_order)}
