@@ -241,7 +241,7 @@ def get_genome(reference_name, gtf, transcript_fasta=None, logging_args=None,
     ensembl = pyensembl.Genome(
         reference_name=reference_name,
         gtf_path_or_url=gtf,
-        transcript_fasta_path_or_url=transcript_fasta,
+        transcript_fasta_paths_or_urls=transcript_fasta,
         annotation_name=annotation_name,
         **kwargs
     )

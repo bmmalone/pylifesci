@@ -28,9 +28,6 @@ import lifesci.bam_utils as bam_utils
 import lifesci.bio as bio
 import lifesci.fastx_utils as fastx_utils
 
-
-import misc.parallel as parallel
-
 logger = logging.getLogger(__name__)
 
 bed12_field_names = [
@@ -626,11 +623,6 @@ def split_bed12(bed_df, num_cpus=1, progress_bar=False):
                 transcript_start: the 0-based index of the start of this
                     exon within the transcript. As with exon_index, this
                     is relative to "start". 
-
-        Imports:
-            pandas
-            misc.parallel
-            misc.utils
     """    
     columns = bed6_field_names + ['exon_index', 'transcript_start']
 
@@ -835,11 +827,6 @@ def retain_all_thick_only(bed_df, prune_no_thick=True, progress_bar=True, num_cp
                 updated to include only the thick parts. Depending on the value
                 of prune_no_thick, the entries with no thick part will be
                 removed.
-
-        Imports:
-            pandas
-            tqdm (if progress_bar is True)
-            misc.parallel
     """
     if prune_no_thick:
         m_no_thick = get_no_thick_mask(bed_df)

@@ -9,7 +9,6 @@ import pandas as pd
 import re
 
 import lifesci.fastx_utils as fastx_utils
-import misc.parallel as parallel
 
 # build up the header regular expression
 transcript_id_re = r'(?P<transcript_id>\S+)'

@@ -22,7 +22,7 @@ pip3 install .
 
 **Usage**
 
-Please see [the documentation](docs/bio.md) for usage details.
+Please see [the documentation](https://pylifesci.readthedocs.io/en/) for usage details.
 
 **Uninstallation**
 
