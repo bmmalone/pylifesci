@@ -37,40 +37,78 @@ bio_console_scripts = [
 
 console_scripts = bio_console_scripts
 
+install_requires = [
+    'biopython',
+    'cython',
+    'docopt',
+    'graphviz',
+    'joblib',
+    'mygene'
+    'numpy',
+    'matplotlib',
+    'mhcnames',
+    'openpyxl',
+    'pandas',
+    'pyensembl',
+    'pyllars',
+    'scipy',
+    'tqdm',
+    'xlrd',
+]
+
+tests_require = [
+    'pytest',
+    'coverage',
+    'pytest-cov',
+    'coveralls',
+    'pytest-runner',
+]
+
+docs_require = [
+    'sphinx',
+    'sphinx_rtd_theme',
+]
+
+all_requires = (
+    tests_require + 
+    docs_require 
+)
+
+extras = {
+    'test': tests_require,
+    'all': all_requires,
+    'docs': docs_require,
+}
+
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+]
+
 def readme():
     with open('README.md') as f:
         return f.read()
 
-setup(name='bio-utils',
-        version='0.2.5',
-        description="This repo contains python3 bioinformatics utilities I find useful.",
-        long_description=readme(),
-        keywords="utilities",
-        url="",
-        author="Brandon Malone",
-        author_email="bmmalone@gmail.com",
-        license='MIT',
-        packages=find_packages(),
-        install_requires = [
-            'cython',
-            'numpy',
-            'scipy',
-            'matplotlib',
-            'pandas',
-            'docopt',
-            'tqdm',
-            'joblib',
-            'xlrd',
-            'openpyxl',
-            'graphviz',
-            'biopython',
-            'mygene'
-        ],
-        include_package_data=True,
-        test_suite='nose.collector',
-        tests_require=['nose'],
-        entry_points = {
-            'console_scripts': console_scripts
-        },
-        zip_safe=False
-        )
+setup(
+    name='bio-utils',
+    version='0.2.5',
+    description="This repo contains python3 bioinformatics utilities.",
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    keywords="bioinformatics utilities",
+    url="https://github.com/bmmalone/pybio-utils",
+    author="Brandon Malone",
+    author_email="bmmalone@gmail.com",
+    license='MIT',
+    classifiers=classifiers,
+    packages=find_packages(),
+    install_requires = install_requires,
+    include_package_data=True,
+    tests_require=tests_require,
+    extras_require=extras,
+    entry_points = {
+        'console_scripts': console_scripts
+    },
+    zip_safe=False
+)

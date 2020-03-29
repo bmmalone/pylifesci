@@ -3,11 +3,20 @@
 #   wraps calls to pysam and often returns results of interest as pandas data
 #   frames.
 ###
-
-import os
-import sys
 import logging
 logger = logging.getLogger(__name__)
+
+import collections
+import numpy as np
+import os
+import pandas as pd
+import sys
+import tqdm
+
+import pysam
+
+import pyllars.pandas_utils as pd_utils
+import pyllars.shell_utils as shell_utils
 
 def check_bam_file(filename, check_index=False, raise_on_error=True, logger=logger):
     """ This function wraps a call to "samtools view" and pipes the output to 
@@ -36,8 +45,6 @@ def check_bam_file(filename, check_index=False, raise_on_error=True, logger=logg
         Imports:
             misc.utils
     """
-    import misc.utils as utils
-    import misc.shell_utils as shell_utils
     
     programs = ['samtools']
     shell_utils.check_programs_exist(programs)
@@ -101,7 +108,6 @@ def get_pysam_alignment_file(f, mode=None, **kwargs):
         Imports:
             pysam
     """
-    import pysam
 
     if isinstance(f, pysam.AlignmentFile):
         return f
@@ -133,8 +139,6 @@ def count_unique_reads(bam, **kwargs):
         occurs.The read names are derived from 
         pysam.AlignedSegnment.query_name.
     """
-    import collections
-
     alignments = get_pysam_alignment_file(bam, **kwargs)
 
     reads_and_counts = collections.defaultdict(int)
@@ -163,8 +167,6 @@ def count_aligned_reads(bam, **kwargs):
     num_aligned_reads: int
         the number of reads with at least one alignment in the file
     """
-    import numpy as np
-
     length_distribution_df = get_length_distribution(bam, **kwargs)
     num_aligned_reads = np.sum(length_distribution_df['count'])
     return num_aligned_reads
@@ -192,10 +194,6 @@ def get_length_distribution(bam, progress_bar=False, **kwargs):
     length_distribution_df: pd.DataFrame
         A data frame with the columns: length, count
     """
-    import collections
-    import tqdm
-    import misc.utils as utils
-
     msg = "Opening alignment file"
     logger.debug(msg)
     
@@ -232,7 +230,7 @@ def get_length_distribution(bam, progress_bar=False, **kwargs):
     msg = "Converting distribution to data frame"
     logger.debug(msg)
 
-    length_distribution_df = utils.dict_to_dataframe(
+    length_distribution_df = pd_utils.dict_to_dataframe(
         length_distribution,
         key_name='length',
         value_name='count'
@@ -258,8 +256,6 @@ def count_uniquely_mapping_reads(bam, logger=logger):
     num_uniquely_mapping_reads : int
         The number of reads which map uniquely (i.e., have the "NH:i:1" flag)
     """
-    import misc.shell_utils as shell_utils
-
     cmd = "samtools view -h {} | grep '^@\|NH:i:1	'| wc -l".format(bam)
     res = shell_utils.check_output(cmd)
     num_uniquely_aligned_reads = int(res.strip())
@@ -294,8 +290,6 @@ def remove_multimapping_reads(align_in, align_out, call=True, tmp=None,
         Returns:
             None
     """
-    import misc.shell_utils as shell_utils
-
     programs = ['samtools']
     shell_utils.check_programs_exist(programs)
 
@@ -338,11 +332,6 @@ def get_five_prime_ends(bam, progress_bar=True, count=True, logger=logger):
             pysam
             tqdm
     """
-    import numpy as np
-    import pandas as pd
-    import pysam
-    import tqdm
-
     # first, make sure we have an alignment file
     bam = get_pysam_alignment_file(bam)
 

@@ -1,8 +1,18 @@
-###
-#   Helper functions for working with the MEME suite: http://meme-suite.org/
-###
+"""
+Helper functions for working with the MEME suite: http://meme-suite.org/
+"""
+import logging
+logger = logging.getLogger(__name__)
 
 import collections
+import numpy as np
+import pandas as pd
+
+import pyllars.collection_utils as collection_utils
+
+# web logos
+import corebio.seq
+import weblogolib
 
 meme_motifs = collections.namedtuple(
     "meme_motifs",
@@ -56,8 +66,6 @@ def parse_meme_motifs(meme_motifs_file):
             - probability_matrix
             - url
     """
-    import misc.utils as utils
-
     version = None
     alphabet = None
     strands = ["+", "-"]
@@ -100,7 +108,7 @@ def parse_meme_motifs(meme_motifs_file):
                     read_background = False
                 else:
                     s = line.strip().split()
-                    b = utils.list_to_dict(s, float)
+                    b = collection_utils.list_to_dict(s, float)
                     background_frequencies.update(b)
 
         # keep parsing until we find no more motifs
@@ -139,9 +147,6 @@ def _parse_meme_motif(motif_line, f):
         the next motif name line, or the empty string if this was the last
         motif in the file
     """
-    import numpy as np
-    import misc.utils as utils
-
     s = motif_line.split()
     
     if len(s) == 2:
@@ -161,7 +166,7 @@ def _parse_meme_motif(motif_line, f):
             read_letter_probability = True
 
             s = line.split()
-            pma = utils.list_to_dict(s[2:])
+            pma = collection_utils.list_to_dict(s[2:])
             probability_matrix_attributes = pma
 
         elif ll.startswith("url"):
@@ -214,7 +219,6 @@ def read_fimo(fimo_file):
             q-value : the lowest FDR at which the match is significant
             matched sequence : the sequence which matched the motif
     """
-    import pandas as pd
     df = pd.read_csv(fimo_file, sep='\t')
     df.columns = [c.replace("#", "") for c in df.columns]
     return df
@@ -327,9 +331,6 @@ def read_ame(ame_file, method='ranksum'):
                 after bonferroni correction
             u_value: an "association score" (see the paper for details)
     """
-    import pandas as pd
-    import misc.utils as utils
-
     if method not in AME_METHODS:
         msg = "[meme_utils.read_ame]: invalid method: {}".format(method)
         raise ValueError(msg)
@@ -345,7 +346,7 @@ def read_ame(ame_file, method='ranksum'):
                         
             ame_df.append(res)
             
-    ame_df = utils.remove_nones(ame_df)
+    ame_df = collection_utils.remove_nones(ame_df)
     ame_df = pd.DataFrame(ame_df)
     return ame_df
 
@@ -386,10 +387,6 @@ def get_motif_logo(probability_matrix, prior=None, alphabet=None,
         The raw image data. It can be written to a file opened in binary mode
         ("wb") or opened as a pillow image ("Image.open(io.BytesIO(logo))")
     """
-
-    import corebio.seq
-    import weblogolib
-    
     alphabet = corebio.seq.unambiguous_dna_alphabet
     
     data = weblogolib.LogoData.from_counts(alphabet, probability_matrix, prior)

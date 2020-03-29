@@ -1,11 +1,24 @@
+""" Helpers for working with fasta and fastq sequence files
+"""
 import logging
+logger = logging.getLogger(__name__)
+
+import collections
+import gzip
+import io
 import os
 import re
 import shutil
 import sys
+import tqdm
 
-logger = logging.getLogger(__name__)
+# biopython
+import Bio.SeqIO.FastaIO
+import Bio.SeqIO.QualityIO
 
+import pyllars.pandas_utils as pd_utils
+import pyllars.string_utils as string_utils
+import pyllars.utils
 
 def get_read_iterator(fastx_file, is_fasta=True):
     """ This function returns an iterator (technically, a generator) for the
@@ -33,14 +46,7 @@ def get_read_iterator(fastx_file, is_fasta=True):
                 fastq files, a Bio.SeqIO.QualityIO.FastqGeneralIterator is
                 returned. Please see the relevant documentation from biopython
                 for exact details of these semantics.
-
-        Imports:
-            io
-            gzip, if the file is a gzipped file
-            Bio.SeqIO.FastaIO (from biopython), if the file is a fasta file
-            Bio.SeqIO.QualityIO (from biopython), if the file is a fastq file
     """
-    import io
 
     if isinstance(fastx_file, io.IOBase):
         msg = "Gussing that fastx_file is an open file handle"
@@ -49,7 +55,6 @@ def get_read_iterator(fastx_file, is_fasta=True):
         file_handle = fastx_file
         
     elif fastx_file.endswith("gz"):
-        import gzip
 
         msg = "Guessing that fastx_file is a gzipped file"
         logger.debug(msg)
@@ -63,10 +68,8 @@ def get_read_iterator(fastx_file, is_fasta=True):
         file_handle = open(fastx_file, 'rU')
 
     if is_fasta:
-        import Bio.SeqIO.FastaIO
         read_iterator = Bio.SeqIO.FastaIO.SimpleFastaParser(file_handle)
     else:
-        import Bio.SeqIO.QualityIO
         read_iterator = Bio.SeqIO.QualityIO.FastqGeneralIterator(file_handle)
 
     return read_iterator
@@ -89,9 +92,6 @@ def get_length_distribution(fastx_file, is_fasta=True):
     length_distribution_df: pd.DataFrame
         A data frame with the columns: length, count
     """
-    import collections
-    import misc.utils as utils
-
     fastx = get_read_iterator(fastx_file, is_fasta=is_fasta)
 
     length_distribution = collections.defaultdict(int)
@@ -100,7 +100,7 @@ def get_length_distribution(fastx_file, is_fasta=True):
         read_len = len(read[1])
         length_distribution[read_len] += 1
 
-    length_distribution_df = utils.dict_to_dataframe(
+    length_distribution_df = pd_utils.dict_to_dataframe(
         length_distribution,
         key_name='length',
         value_name='count'
@@ -131,11 +131,6 @@ def get_read_count(filename, is_fasta=True):
 
         Returns:
             int: the number of reads in the file
-
-        Imports:
-            gzip, if the file is a gzipped file
-            Bio.SeqIO.FastaIO (from biopython), if the file is a fasta file
-            Bio.SeqIO.QualityIO (from biopython), if the file is a fastq file
     """
     read_iterator = get_read_iterator(filename, is_fasta)
     num_reads = sum(1 for read in read_iterator)
@@ -194,13 +189,7 @@ def remove_duplicate_sequences(fastas_in, fasta_out, compress=True,
 
         Returns:
             None, but the output file is written
-
-        Imports:
-            tqdm, if progress_bar is shown
     """
-
-    import re
-
     # we will find duplicates by storing the sequences as keys in a dictionary
     seq_dict = {}
 
@@ -216,7 +205,6 @@ def remove_duplicate_sequences(fastas_in, fasta_out, compress=True,
         iter_ = seqs
 
         if progress_bar:
-            import tqdm
             total = get_read_count(fasta_in, is_fasta=True)
             iter_ = tqdm.tqdm(seqs, leave=True, file=sys.stdout, total=total)
        
@@ -245,14 +233,12 @@ def remove_duplicate_sequences(fastas_in, fasta_out, compress=True,
 def _write_fasta_entry(out, header, seq, wrap=False):
     """ This helper function writes a single fasta entry to the given file.
     """
-    import misc.utils
-
     out.write(">")
     out.write(header)
     out.write("\n")
 
     if wrap:
-        seq = misc.utils.simple_fill(seq)
+        seq = string_utils.simple_fill(seq)
 
     out.write(seq)
     out.write("\n")
@@ -277,22 +263,13 @@ def write_fasta(seqs, filename, compress=True, wrap=True, progress_bar=False):
 
         Returns:
             None
-
-        Imports:
-            misc.utils
-            gzip (if compression is used)
-            tqdm (if progress bar is used)
     """
-    import misc.utils
-
     if compress:
-        import gzip
         out = gzip.open(filename, 'wt')
     else:
         out = open(filename, 'w')
 
     if progress_bar:
-        import tqdm
         seq_iter = tqdm.tqdm(seqs, leave=True, file=sys.stdout)
     else:
         seq_iter = seqs
@@ -310,7 +287,7 @@ def _write_fastq_entry(out, header, seq, qual_scores, wrap=False):
     out.write("\n")
 
     if wrap:
-        seq = misc.utils.simple_fill(seq)
+        seq = string_utils.simple_fill(seq)
 
     out.write(seq)
     out.write("\n")
@@ -320,12 +297,12 @@ def _write_fastq_entry(out, header, seq, qual_scores, wrap=False):
     out.write("\n")
 
     if wrap:
-        qual_scores = misc.utils.simple_fill(qual_scores)
+        qual_scores = string_utils.simple_fill(qual_scores)
 
     out.write(qual_scores)
     out.write("\n")
 
-def write_fastq(seqs, quals, filename, compress=True, wrap=False, progress_bar=False):
+def write_fastq(seqs, quals, filename, wrap=False, progress_bar=False):
     """ This function writes the provided sequences and qualities to a fastq file. The input
         is given as two dictionaries in which the keys in both are the fasta headers. The
         seqs dictionary should map from the header to the sequence, and the quals dictionary
@@ -341,9 +318,7 @@ def write_fastq(seqs, quals, filename, compress=True, wrap=False, progress_bar=F
 
             quals (dictionary) : a mapping from the header to the quality scores
 
-            filename (string) : the name of the output file
-
-            compress (boolean) : whether to gzip the output
+            filename (string) : the name of the output file. compression will be guess based on the file extension
 
             wrap (bool): whether to wrap the sequence and quality scores to 80 chars
 
@@ -351,18 +326,11 @@ def write_fastq(seqs, quals, filename, compress=True, wrap=False, progress_bar=F
 
         Returns:
             None
-
-        Imports:
-            misc.utils
-            gzip (if compression is used)
-            tqdm (if progress bar is used)
     """
-    import misc.utils
 
-    out = misc.utils.open(filename, 'w', compress=compress)
+    out = pyllars.utils.open_file(filename, 'w')
 
     if progress_bar:
-        import tqdm
         seq_iter = tqdm.tqdm(seqs.items(), leave=True, file=sys.stdout)
     else:
         seq_iter = seqs.items()
@@ -487,9 +455,6 @@ def check_fastq_file(filename, break_on_error=True, raise_on_error=True,
 
         Raises:
             OSError: if the file is not a valid fastq and raise_on_error is True
-
-        Imports:
-            misc.utils
     """
     read_iterator = get_read_iterator(filename, is_fasta=False)
 
@@ -536,7 +501,6 @@ def check_fastq_file(filename, break_on_error=True, raise_on_error=True,
 
 def check_fasta_file(filename, break_on_error=True, raise_on_error=True, 
             logger=logger):
-
     """ This function checks the validity of a fasta file. This is somewhat
         difficult because the format is so loose; in contrast, for example,
         the length of the sequence and quality must match in fastq.
@@ -560,9 +524,6 @@ def check_fasta_file(filename, break_on_error=True, raise_on_error=True,
 
         Raises:
             OSError: if the file is not a valid fasta and raise_on_error is True
-
-        Imports:
-            misc.utils
     """
 
     is_valid = True

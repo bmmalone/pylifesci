@@ -1,10 +1,21 @@
-###
-#   This module includes helpers for working with GTF files.
-#
-#   pyensembl includes many functions for querying, etc., GTF files. This
-#   module does not replace that functionality. Rather, it adds light-weight
-#   utilities for things like file conversion, etc.
-###
+"""
+This module includes helpers for working with GTF files.
+
+pyensembl includes many functions for querying, etc., GTF files. This
+module does not replace that functionality. Rather, it adds light-weight
+utilities for things like file conversion, etc.
+"""
+import logging
+logger = logging.getLogger(__name__)
+
+import csv
+import numpy as np
+import pandas as pd
+import re
+import shlex
+
+import pyllars.pandas_utils as pd_utils
+import bio_utils.bed_utils as bed_utils
 
 gtf_field_names = [
     "seqname",
@@ -43,12 +54,7 @@ def read_gtf(filename, sep='\t', comment='#', field_names=None,
 
         Returns:
             pandas.DataFrame: a data frame with the GTF records.
-
-        Imports:
-            pandas
     """
-    import pandas as pd
-
     if use_default_field_names:
         gtf = pd.read_csv(filename, sep=sep, comment=comment, header=None,
             names=gtf_field_names)
@@ -90,15 +96,7 @@ def write_gtf(data_frame, filename, compress=True, use_default_fields=True, **kw
 
         Returns:
             None
-
-        Imports:
-            csv
-            misc.utils
-            gzip (indirectly)
     """
-    import csv
-    import misc.utils
-
     do_not_compress = not compress
 
     if use_default_fields:
@@ -111,7 +109,7 @@ def write_gtf(data_frame, filename, compress=True, use_default_fields=True, **kw
     data_frame[end_field] = data_frame[end_field].astype(int)
 
     header = ['#{}'.format(c) for c in data_frame.columns]
-    misc.utils.write_df(data_frame, filename, index=False, sep='\t', 
+    pd_utils.write_df(data_frame, filename, index=False, sep='\t', 
         header=header, do_not_compress=do_not_compress, quoting=csv.QUOTE_NONE, **kwargs)
 
 def _get_gtf_entries(bed_entry, feature_type:str, source:str=None, 
@@ -147,11 +145,6 @@ def _get_gtf_entries(bed_entry, feature_type:str, source:str=None,
     gtf_entries: pd.DataFrame
         A data frame of the gtf entries for the bed entry blocks
     """
-    import shlex
-    import numpy as np
-    import pandas as pd
-    import bio_utils.bed_utils as bed_utils
-
     # get the attributes
 
     # this comes from all of the "extra" columns, plus "id" for the 
@@ -251,10 +244,7 @@ def get_gtf_entries(bed_entry, source:str, id_attribute:str="transcript_id"):
         
         * The entries are sorted according to "start".
         * The order of the columns is the same as gtf_utils.gtf_field_names
-    """
-    import pandas as pd
-    import bio_utils.bed_utils as bed_utils
-    
+    """    
     gtf_exons = _get_gtf_entries(bed_entry, "exon", source)
 
     if bed_entry['thick_start'] > -1:
@@ -281,8 +271,6 @@ R_COMMA     = re.compile(r'\s*,\s*')
 R_KEYVALUE  = re.compile(r'(\s+|\s*=\s*)')
 
 def _get_gtf_value(value):
-    import re
-
     if not value:
         return None
 
@@ -316,12 +304,7 @@ def parse_gtf_attributes(row):
             dict-like: an object of the same types as the input which includes
                 all of the fields present in the input, as well as each
                 attribute as a new field (e.g., key in a dictionary)
-
-        Imports:
-            re
     """
-    import re
-
     attributes = row['attributes']
     
     attributes = [x for x in re.split(R_SEMICOLON, attributes) if x.strip()]
@@ -346,8 +329,6 @@ def _parse_gtf_group(rows):
     """ This is a helper function for parsing GTF attributes from a data frame.
         It is not intended for external use.
     """
-    import pandas as pd
-    import misc.parallel as parallel
     res = parallel.apply_df_simple(rows, parse_gtf_attributes)
     res = pd.DataFrame(res)
     return res
@@ -373,14 +354,7 @@ def parse_all_gtf_attributes(gtf_df, num_cpus=1, progress_bar=False, num_groups=
 
         Returns:
             pd.DataFrame: a new data frame with each attribute added as a column
-
-        Imports:
-            pandas
-            misc.parallel
     """ 
-    import pandas as pd
-    import misc.parallel as parallel
-    
     gtf = parallel.apply_parallel_split(
         gtf_df, 
         num_cpus, 
@@ -390,5 +364,3 @@ def parse_all_gtf_attributes(gtf_df, num_cpus=1, progress_bar=False, num_groups=
 
     gtf = pd.concat(gtf)
     return gtf
-
-

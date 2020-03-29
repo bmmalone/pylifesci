@@ -1,7 +1,11 @@
-###
-#   Helper functions for working with STAR. It mostly includes things like
-#   checking if all of the index files exist and adding command line arguments.
-###
+"""
+Helper functions for working with STAR. It mostly includes things like
+checking if all of the index files exist and adding command line arguments.
+"""
+import os
+import pandas as pd
+import shlex
+import shutil
 import sys
 
 def create_star_tmp(tmp_path:str, tmp_name:str='STAR'):
@@ -34,9 +38,6 @@ def create_star_tmp(tmp_path:str, tmp_name:str='STAR'):
 
     tmp_path/tmp_name will be removed if it already existed.
     """
-    import os
-    import shutil
-
     # the path to the star directory must exist
     if not os.path.exists(tmp_path):
         os.makedirs(tmp_path)
@@ -51,23 +52,21 @@ def create_star_tmp(tmp_path:str, tmp_name:str='STAR'):
 def get_star_index_files(path:str, with_sjdb_files:bool=False):
     """ Find the file names necessary for a STAR index rooted at path.
 
-        Parameters
-        ----------
-        path: string
-            the path to the directory containing the STAR index
+    Parameters
+    ----------
+    path: string
+        the path to the directory containing the STAR index
 
-        with_sjdb_files: bool
-            whether to include the splice junction database files in the 
-            returned list
+    with_sjdb_files: bool
+        whether to include the splice junction database files in the 
+        returned list
 
-        Returns
-        -------
-        star_index_files: list of strings
-            the complete paths to all of the files expected for a STAR index 
-            rooted at path (include sjdb/exon files, if specified)
+    Returns
+    -------
+    star_index_files: list of strings
+        the complete paths to all of the files expected for a STAR index 
+        rooted at path (include sjdb/exon files, if specified)
     """
-    import os
-
     star_files = [
         "chrLength.txt",
         "chrNameLength.txt",
@@ -127,8 +126,6 @@ def read_star_tr_file(filename:str):
         a data frame containing the transcripts info. The order of the 
         transcripts will be the same as the order in the file.
     """
-    import pandas as pd
-
     column_names = ['ID', 'S', 'E', 'Emax', 'Str', 'ExN', 'ExI']
     transcript_info = pd.read_csv(
         filename, 
@@ -185,8 +182,6 @@ def get_star_options_string(args):
     star_options: string
         a string containing STAR options suitable to pass to another command
     """
-    import shlex
-
     args_dict = vars(args)
 
     star_options = ['star_executable', 'star_read_files_command']

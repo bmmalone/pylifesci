@@ -1,8 +1,15 @@
-import collections
+""" This module includes parsing utilities for the gffread tool from cufflinks.
+"""
 import logging
+logger = logging.getLogger(__name__)
+
+import collections
+import numpy as np
+import pandas as pd
 import re
 
-logger = logging.getLogger(__name__)
+import bio_utils.fastx_utils as fastx_utils
+import misc.parallel as parallel
 
 # build up the header regular expression
 transcript_id_re = r'(?P<transcript_id>\S+)'
@@ -43,11 +50,7 @@ def get_starts_ends(coords):
         Returns:
             np.array : the first coordinate in each pair
             np.array : the second coordinate in each pair
-
-        Imports:
-            numpy
     """
-    import numpy as np
 
     s = re.split('-|,', coords)
     starts = np.array(s[0::2], dtype=int)
@@ -78,9 +81,6 @@ def parse_header(header):
                 exon_ends (np.array of ints, the second (absolute) coordinate in each exon)
                 seg_starts (np.array of ints, the first (relative) coordinate in each exon)
                 seg_ends (np.array of ints, the second (relative) coordinate in each exon)
-
-        Imports:
-            numpy (indirectly)
 
     """
     global header_re
@@ -147,20 +147,11 @@ def get_all_headers(transcripts_fasta_file):
                 exon_ends (np.array of ints, the second (absolute) coordinate in each exon)
                 seg_starts (np.array of ints, the first (relative) coordinate in each exon)
                 seg_ends (np.array of ints, the second (relative) coordinate in each exon)
-
-        Imports:
-            pandas
-            misc.bio
-            misc.parallel
     """
-    import misc.bio as bio
-    import misc.parallel as parallel
-    import pandas as pd
-
     msg = "Parsing all headers"
     logger.info(msg)
 
-    transcripts = bio.get_read_iterator(transcripts_fasta_file)
+    transcripts = fastx_utils.get_read_iterator(transcripts_fasta_file)
     
     all_headers = []
     for transcript in transcripts:
@@ -203,9 +194,6 @@ def get_utr_info(fasta_record):
 
                 five_prime_utr, three_prime_utr (strings): the respect UTR
                     sequences
-
-            Imports:
-                numpy (indirectly)
     """
     header = parse_header(fasta_record[0])
     if header.cds_start is None:
@@ -259,32 +247,18 @@ def get_all_utrs(transcripts_fasta_file, progress_bar=False):
 
                 five_prime_utr, three_prime_utr (strings): the respect UTR
                     sequences
-
-        Imports:
-            misc.parallel
-            misc.bio
-            Bio.SeqIO.FastaIO (from biopython)
-            pandas
-
-            gzip, if the fasta file is gzipped
-            tqdm, if a progress bar is used
-                
     """
-    import misc.parallel as parallel
-    import misc.bio as bio
-    import pandas as pd
-
     if progress_bar:
         msg = "Counting sequences in file"
         logger.info(msg)
-        read_count = bio.get_read_count(transcripts_fasta_file)
+        read_count = fastx_utils.get_read_count(transcripts_fasta_file)
     else:
         read_count = None
 
     msg = "Extracting UTR sequences"
     logger.info(msg)
 
-    transcripts = bio.get_read_iterator(transcripts_fasta_file)
+    transcripts = fastx_utils.get_read_iterator(transcripts_fasta_file)
     all_utr_info = parallel.apply_iter_simple(transcripts, get_utr_info, 
         progress_bar=progress_bar, total=read_count)
 

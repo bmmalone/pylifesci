@@ -3,13 +3,27 @@
 ###
 
 import collections
+import csv
 import logging
 import os
 import re
 import shutil
 import sys
 
+import numpy as np
 import pandas as pd
+import tqdm
+
+import pysam
+from Bio.Seq import reverse_complement
+
+import pyllars.utils    
+import pyllars.math_utils as math_utils
+import misc.parallel as parallel
+import bio_utils.bio as bio
+import bio_utils.fastx_utils as fastx_utils
+
+import bio_utils.bam_utils as bam_utils
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +71,6 @@ def read_bed(filename, sep='\t', comment=None, header=None,
         Imports:
             pandas
     """
-    import pandas as pd
 
     
     if header is None and not use_default_field_names:
@@ -102,8 +115,6 @@ def write_bed(data_frame, filename, compress=True, **kwargs):
             csv
             gzip (indirectly)
     """
-    import misc.utils
-    import csv
 
     do_not_compress = not compress
 
@@ -131,7 +142,6 @@ def get_bed_df(bed):
     ------
     ValueError: if bed is neither a string nor a pd.DataFrame
     """
-    import pandas as pd
 
     if isinstance(bed, str):
         bed = read_bed(bed)
@@ -172,7 +182,6 @@ def get_longest_features_by_end(bed_df):
         Imports:
             pandas
     """
-    import pandas as pd
     
     # handle the separate strands
     m_forward = bed_df['strand'] == '+'
@@ -234,10 +243,7 @@ def parse_exon_start_end_length(exon, delimiter='-'):
             
         Imports:
             misc.utils
-    """
-    
-    import misc.utils as utils
-         
+    """         
     exon_start_end = exon.split(delimiter)
     if len(exon_start_end) != 2:
         msg = ("There was a problem parsing the exon coordinates: '{}'. Inner "
@@ -299,8 +305,6 @@ def get_block_and_offset(pos, block_starts, block_lengths):
         Imports:
             numpy
     """
-    import numpy as np
-    
     # find the block of gen_pos
     # add one in case gen_pos is exactly on the start of a block
     i = np.searchsorted(block_starts, pos+1) - 1
@@ -362,8 +366,6 @@ def get_relative_position(gen_pos, block_starts, block_lengths):
         Raises:
             IndexError if gen_pos does not actually fall within one of the blocks
     """
-    import numpy as np
-
     i, offset = get_block_and_offset(gen_pos, block_starts, block_lengths)
     rel_pos = np.sum(block_lengths[:i]) + offset
 
@@ -415,10 +417,7 @@ def get_gen_pos(rel_pos, start, block_lengths, block_starts, block_relative_star
         Imports:
             numpy
             misc.math_utils
-    """
-    import numpy as np
-    import misc.math_utils as math_utils
-    
+    """    
     # first, determine the block into which this position falls, and the offset within that block
     block, offset = get_block_and_offset(rel_pos, block_starts, block_lengths)
     
@@ -478,8 +477,6 @@ def convert_genomic_coords_to_bed_blocks(coords, outer_sep=',', inner_sep='-'):
             misc.utils (indirectly)
             misc.math_utils
     """
-    import misc.math_utils as math_utils
-    
     exons = coords.split(outer_sep)
     
     num_exons = len(exons)
@@ -568,8 +565,6 @@ def split_bed12_blocks(bed_entry):
         Imports:
             numpy
     """
-    import numpy as np
-
     exon_lengths = np.fromstring(bed_entry['exon_lengths'], 
         sep=",", dtype='int')
     exon_rel_starts = np.fromstring(bed_entry['exon_genomic_relative_starts'], 
@@ -630,11 +625,7 @@ def split_bed12(bed_df, num_cpus=1, progress_bar=False):
             pandas
             misc.parallel
             misc.utils
-    """
-    import pandas as pd
-    import misc.parallel as parallel
-    import misc.utils as utils
-    
+    """    
     columns = bed6_field_names + ['exon_index', 'transcript_start']
 
     if len(bed_df) == 0:
@@ -693,8 +684,6 @@ def retain_thick_only(bed_entry, inplace=False):
         Imports:
             numpy
     """
-    import numpy as np
-    
     # first, extract the relevant values
     rel_starts = bed_entry['exon_genomic_relative_starts']
     rel_starts = np.array(rel_starts.split(","), dtype=int)
@@ -846,10 +835,6 @@ def retain_all_thick_only(bed_df, prune_no_thick=True, progress_bar=True, num_cp
             tqdm (if progress_bar is True)
             misc.parallel
     """
-    import numpy as np
-    import pandas as pd
-    import misc.parallel as parallel
-
     if prune_no_thick:
         m_no_thick = get_no_thick_mask(bed_df)
     else:
@@ -1045,11 +1030,7 @@ def retain_before_thick_only(bed_entry, inplace=False):
                 original entry. All other fields are passed through unchanged.
                 The updated version is returned regardless of the value of 
                 inplace.
-                
-        Imports:
-            numpy (indirectly)
     """
-
     if inplace:
         ret = bed_entry
     else:
@@ -1107,9 +1088,6 @@ def retain_after_thick_only(bed_entry, inplace=False):
                 original entry. All other fields are passed through unchanged.
                 The updated version is returned regardless of the value of 
                 inplace.
-                
-        Imports:
-            numpy (indirectly)
     """
 
     if inplace:
@@ -1172,12 +1150,7 @@ def merge_intervals(interval_starts, interval_ends, interval_info=None):
 
             The sorted starts and ends of the merged intervals, as well as a list
             of the information about the merged intervals, if given.
-
-        Imports:
-            numpy
     """
-    import numpy as np
-
     if len(interval_starts) == 0:
         return [], [], []
 
@@ -1290,13 +1263,7 @@ def merge_all_intervals(bed, split=False):
 
                 merged_ids (list of string): a list of the original identifiers
                     of the intervals which make up the merged interval
-
-        Imports:
-            pandas
-
     """
-    import pandas as pd
-
     if split:
         msg = "Splitting the BED12 records"
         logger.debug(msg)
@@ -1415,14 +1382,7 @@ def get_position_intersections(positions, interval_starts, interval_ends,
 
                 index 3: the additional information associated with this
                     position, or None if no additional information was given.
-
-        Imports:
-            numpy
-            misc.utils
     """
-    import numpy as np
-    import misc.utils as utils
-
     matches = []
     cache = []
 
@@ -1537,13 +1497,7 @@ def get_all_position_intersections(positions_bed, intervals_bed, logger=logger):
                 position_info (index 3): the bed entry for the matching position
 
             The type of the tuples is: bed_utils.position_interval_intersection
-
-        Imports:
-            misc.utils
-
     """
-    import misc.utils as utils
-     
     seqnames = positions_bed['seqname'].unique()
     
     strands = ("+", "-")
@@ -1620,12 +1574,7 @@ def get_exact_interval_matches(a_starts, a_ends, a_info, b_starts, b_ends, b_inf
         Returns:
             list of 2-tuples: a list of the additional information for each pair
                 of intervals which exactly overlap.
-
-        Imports:
-            numpy
     """
-    import numpy as np
-    
     # convert to numpy
     a_starts = np.array(a_starts)
     a_ends = np.array(a_ends)
@@ -1740,13 +1689,7 @@ def get_exact_block_matches(matches, block_counts_a, block_counts_b=None,
         Returns:
             list of 2-tuples: a list of the transcript identifers which are
                 exact matches
-
-        Imports:
-            collections
-
     """
-    import collections
-
     # keep track of the exact matches between different transcripts
     match_count = collections.defaultdict(int)
     
@@ -1853,13 +1796,7 @@ def get_all_exact_bed_matches(bed_a, bed_b):
                 seqname: the seqname of that transcripts
 
                 strand: the strand of the transcripts
-
-        Imports:
-            pandas
-
     """
-    import pandas as pd
-    
     seqnames = bed_a['seqname'].unique()
     strands = ("+", "-")
     
@@ -1911,7 +1848,6 @@ def _get_bed_exons(bed_a, bed_b, exons, exons_a, exons_b):
             exons and at least one of exons_{a,b} is passed.
 
     """
-
     # check that the exons we have makes sense
     exons_a_passed = exons_a is not None
     exons_b_passed = exons_b is not None
@@ -2000,11 +1936,7 @@ def get_interval_overlaps(a_starts, a_ends, a_info, b_starts, b_ends, b_info):
                     a_info: the additional information from the "a" list
                     b_info: the additional information from the "b" list
                     overlap: the length of the overlap
-
-        Imports:
-            numpy
     """
-    import numpy as np
     
     # convert to numpy
     a_starts = np.array(a_starts)
@@ -2140,12 +2072,7 @@ def get_transcript_overlaps(interval_overlaps):
             
                 A map from the pairs of overlapping transcripts to the total
                 overlap between them.
-
-        Imports:
-            collections
-
     """
-    import collections
 
     # keep track of the total overlap between each pair
     total_overlaps = collections.defaultdict(int)
@@ -2192,12 +2119,7 @@ def get_transcript_overlap_fractions(transcript_overlaps, a_lengths_map, b_lengt
             list of transcript_overlap tuples: a list of the overlapping
                 pairs of transcripts, the length of the overlap, and the 
                 fraction of each transcript covered by that overlap
-
-        Imports:
-            misc.math_utils
     """
-    import misc.math_utils as math_utils
-
     # check the overlap fractions
     math_utils.check_range(min_a_overlap, 0, 1, variable_name="min_a_overlap")
     math_utils.check_range(min_b_overlap, 0, 1, variable_name="min_b_overlap")
@@ -2285,8 +2207,6 @@ def get_bed_overlaps(bed_a, bed_b, min_a_overlap=0, min_b_overlap=0, exons=None,
             RuntimeError: if exactly one of exons_{a,b} is passed, or if both
                 exons and at least one of exons_{a,b} is passed.
     """
-    import misc.math_utils as math_utils
-
     bed_a, bed_b = _get_bed_exons(bed_a, bed_b, exons, exons_a, exons_b)
     
     # check the overlap fractions
@@ -2478,10 +2398,7 @@ def get_entries_with_upstream_overlaps(
 
             N.B. The length and fraction of the overlap are not generally very
                 meaningful here.
-
     """
-    import pandas as pd
-
     bed_a, bed_b = _get_bed_exons(bed_a, bed_b, exons, exons_a, exons_b)
     
     # we will always need strand information about A    
@@ -2591,14 +2508,7 @@ def get_bed_sequence(bed_entry, seq_sequence, split_exons=True):
 
                 string: the sequence for this entry, including splicing if 
                     specified
-
-        Imports:
-            numpy
-            Bio.Seq (from biopython)
     """
-    import numpy as np
-    from Bio.Seq import reverse_complement
-
     genomic_start = bed_entry['start']
     header = bed_entry['id']
     strand = bed_entry['strand']
@@ -2649,19 +2559,9 @@ def get_all_bed_sequences(bed, fasta_file, split_exons=True, progress_bar=True):
                 string: the sequence for this entry, including splicing if 
                     specified
 
-        Imports:
-            numpy
-            Bio.Seq (from biopython)
-            bio_utils.bio
-            misc.parallel
-
         raises:
             ValueError: if the number of columns does not work
     """
-    import bio_utils.bio as bio
-    import bio_utils.fastx_utils as fastx_utils
-    import misc.parallel as parallel
-
     if isinstance(bed, str):
         msg = "Reading bed file"
         logger.debug(msg)
@@ -2744,13 +2644,7 @@ def sort(bed, seqname_order=None, transcript_ids=None):
 
         Returns:
             pd.DataFrame: a sorted data frame
-
-        Imports:
-            numpy
-            pandas
     """
-    import numpy as np
-    import pandas as pd
     
     # first, check if we need to read a file
     if isinstance(bed, str):
@@ -2822,8 +2716,6 @@ def concatenate(bed_list, sort_bed=False, out=None):
     concatenated_bed: bed-style data frame
         The concatenation of all of the bed records in the list
     """
-    import pandas as pd
-
     bed_list = [get_bed_df(b) for b in bed_list]
     concatenated_bed = pd.concat(bed_list)
 
@@ -2859,13 +2751,6 @@ def read_bam_as_bed(bam, progress_bar=True, logger=logger):
     bam_df: bed6+1 style pd.DataFrame
         The alignments as a bed data frame. The extra field is the read length.
     """
-    import numpy as np
-    import pandas as pd
-    import pysam
-    import tqdm
-
-    import bio_utils.bam_utils as bam_utils
-
     # first, make sure we have an alignment file
     bam = bam_utils.get_pysam_alignment_file(bam)
 
@@ -2908,7 +2793,3 @@ def read_bam_as_bed(bam, progress_bar=True, logger=logger):
     alignment_df['length'] = lengths
 
     return alignment_df
-
-
-
-

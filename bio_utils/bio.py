@@ -1,10 +1,16 @@
 # biopython helpers
 
 import logging
+logger = logging.getLogger(__name__)
+
+import numpy as np
 import os
+import pandas as pd
 import re
 import shutil
 import sys
+
+import pyllars.string_utils as string_utils
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +34,6 @@ def read_bitseq_alphas(filename, header=None, comment='#', sep=' '):
             pandas
             
     """
-    import pandas as pd
-
     bitseq_alphas = pd.read_csv(filename.strip(), header=header, comment=comment, sep=sep)
     new_cols = []
     new_cols.append('theta')
@@ -60,11 +64,7 @@ def read_bitseq_means(filename, names=['mean', 'variance'], comment='#', header=
         Returns:
             pandas.DataFrame: a data frame with the transcript information as 
                 columns
-
-        Imports:
-            pandas
     """
-    import pandas as pd
     mean_df = pd.read_csv(filename.strip(), comment=comment, names=names, header=header, sep=sep)
     return mean_df
 
@@ -84,12 +84,7 @@ def read_bitseq_tr_file(filename, names=['source_name', 'transcript_id',
         Returns:
             pandas.DataFrame: a data frame with the transcript information as 
                 columns
-
-        Imports:
-            pandas
     """
-    import pandas as pd
-
     transcript_info = pd.read_csv(filename.strip(), names=names, header=header, comment=comment, sep=sep)
     return transcript_info
 
@@ -109,12 +104,7 @@ def read_maxquant_peptides_file(filename, names=None, header='infer',
 
         Returns:
             pandas.DataFrame: a data frame with the peptide information
-
-        Imports:
-            pandas
     """
-    import pandas as pd
-
     peptides = pd.read_csv(filename.strip(), names=names, header=header, comment=comment, sep=sep)
     return peptides
 
@@ -135,12 +125,7 @@ def read_protein_digestion_simulator_file(filename, names=None, header='infer',
 
         Returns:
             pandas.DataFrame: a data frame with the peptide information
-
-        Imports:
-            pandas
     """
-    import pandas as pd
-
     peptides = pd.read_csv(filename.strip(), names=names, header=header, comment=comment, sep=sep)
     return peptides
 
@@ -169,14 +154,7 @@ def get_uniprot_nt_lengths(uniprot_file, min_nt_length=0, types=None):
         Returns:
             np.array of ints : the lengths (in nucleotides) of the
                 proteins remaining after filtering
-
-        Imports:
-            pandas
-            numpy
     """
-    import numpy as np
-    import pandas as pd
-
     uniprot = pd.read_csv(uniprot_file, sep='\t')
 
     if types is not None:
@@ -223,8 +201,6 @@ def read_idmapping_selected_file(idmapping_selected_file):
 
         and the "README" file (section 2) includes the necessary documentation.
     """
-    import pandas as pd
-
     idmapping_selected = pd.read_csv(idmapping_selected_file, sep='\t', 
         header=None, names=IDMAPPING_SELECTED_NAMES)
 
@@ -257,8 +233,6 @@ def read_gaf_file(gaf_file):
         A readme file (Section 4, in particular) is here:
             ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/README
     """
-    import pandas as pd
-
     gaf = pd.read_csv(gaf_file, sep='\t', header=None, comment='!', 
         names=GAF_NAMES)
 
@@ -282,8 +256,6 @@ def read_ec2go_file(ec2go_file):
 
             sed -i -e 's:->:to:' ec2go.txt
     """
-    import pandas as pd
-
     converters = {
         'EC': str.strip,
         'GO_description': str.strip,
@@ -292,8 +264,6 @@ def read_ec2go_file(ec2go_file):
 
     ec2go_df = pd.read_csv(ec2go_file, sep='>|;', comment='!', engine='python', 
         header=None, names=EC2GO_NAMES, converters=converters)
-
-
 
     return ec2go_df
 
@@ -317,8 +287,6 @@ def read_ncbi_taxonomy_nodes_file(nodes_file):
     """ This function parses the nodes.dmp file giving the NCBI taxonomy. It returns it
         as a data frame.
     """
-    import pandas as pd
-
     nodes_df = pd.read_csv(nodes_file, sep="\t\|\t", header=None, names=NODES_NAMES, engine='python')
     return nodes_df
 
@@ -385,11 +353,8 @@ def parse_mackowiak_id(mackowiak_id):
         Returns:
             (object_id, seqname, start, end, strand): parsed from the id
     """
-    import misc.utils as utils
-    
-    (object_id, seqname, start_end, strand) = utils.split(SPLIT_TOKENS, mackowiak_id)
+    (object_id, seqname, start_end, strand) = string_utils.split(mackowiak_id, SPLIT_TOKENS)
 
     start, end = start_end.split("-")
 
     return object_id, seqname, int(start), int(end), strand
-

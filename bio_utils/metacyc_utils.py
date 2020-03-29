@@ -1,6 +1,15 @@
+""" Utilities for working with the metacyc database
+"""
 import logging
-
 logger = logging.getLogger(__name__)
+
+import pandas as pd
+
+import pyllars.validation_utils as validation_utils
+
+
+import sexpdata
+#sexpdata (for parsing the S-exp data: https://github.com/tkf/sexpdata
 
 def parse_metacyc_attribute(line):
     """ This function parses the key and value from a metacyc dat file.
@@ -22,11 +31,7 @@ def parse_pathways_species(pathways_file):
 
         Returns:
             pd.DataFrame with columns: pathway, species
-
-        Imports:
-            pandas
     """
-    import pandas as pd
     pathways_species = []
 
     cur_pathway = None
@@ -66,11 +71,7 @@ def parse_pathways_ecs(reactions_file):
 
         Returns:
             pd.DataFrame with columns: pathway, ec
-
-        Imports:
-            pandas
     """
-    import pandas as pd
     pathways_ecs = []
 
     cur_reaction = None
@@ -116,16 +117,7 @@ def parse_uniprot_ecs(uniprot_seq_ids_file, raise_on_error=True, logger=logger):
 
         Returns:
             pd.DataFrame with columns: ec, uniprot_id
-
-        Imports:
-            pandas
-            sexpdata (for parsing the S-exp data: https://github.com/tkf/sexpdata
-            misc.utils
     """
-    import pandas as pd
-    import sexpdata
-    import misc.utils as utils
-
     data = sexpdata.load(open(uniprot_seq_ids_file))
     ec_uniprot_list = []
 
@@ -133,7 +125,7 @@ def parse_uniprot_ecs(uniprot_seq_ids_file, raise_on_error=True, logger=logger):
         ec = entry[1]
         # we sometimes have lists of size 1 of ECs. It is not clear why this
         # happens, so just parse it out
-        if utils.is_sequence(ec):
+        if validation_utils.validate_is_sequence(ec, raise_on_invalid=False):
             # if the size is not 1, then this is unexpected
             if len(ec) > 1:
                 msg = ("Unexpected sequence when parsing S-exp EC from uniprot_"
@@ -151,7 +143,7 @@ def parse_uniprot_ecs(uniprot_seq_ids_file, raise_on_error=True, logger=logger):
         for uniprot_id in entry[2:]:
             # we occasionally parse out lists of size 1 of symbols
             # it is unclear to me when this happens
-            if utils.is_sequence(uniprot_id):
+            if validation_utils.validate_is_sequence(uniprot_id, raise_on_invalid=False):
                 # if the size of the list is not 1, then this is unexpected
                 if len(uniprot_id) > 1:
                     msg = ("Unexpected sequence when parsing S-exp uniprot_"

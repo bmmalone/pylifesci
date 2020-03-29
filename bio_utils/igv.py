@@ -1,5 +1,10 @@
-### This script was written by Brent Pedersen
-### https://github.com/brentp/bio-playground/blob/master/igv/igv.py
+""" A wrapper for working with IGV via its socket interface.
+
+This class was written by Brent Pedersen:
+    https://github.com/brentp/bio-playground/blob/master/igv/igv.py
+
+It is released under the MIT license.
+"""
 
 import socket
 import os.path as op
