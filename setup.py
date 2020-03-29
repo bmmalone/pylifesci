@@ -41,7 +41,7 @@ install_requires = [
     'biopython',
     'goatools', #https://github.com/tanghaibao/goatools
     'joblib',
-    'mygene'
+    'mygene',
     'numpy',
     'matplotlib',
     'mhcnames',
@@ -89,13 +89,13 @@ def readme():
         return f.read()
 
 setup(
-    name='bio-utils',
+    name='lifesci',
     version='0.2.5',
-    description="This repo contains python3 bioinformatics utilities.",
+    description="This repo contains python3 life sciences utilities.",
     long_description=readme(),
     long_description_content_type='text/markdown',
     keywords="bioinformatics utilities",
-    url="https://github.com/bmmalone/pybio-utils",
+    url="https://github.com/bmmalone/pylifesci",
     author="Brandon Malone",
     author_email="bmmalone@gmail.com",
     license='MIT',

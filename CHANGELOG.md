@@ -9,6 +9,8 @@ This version includes numerous updates to the internal structure of the code,
 porting the tests to `pytest`, adding initial sphinx documentation, and adding
 the package to PyPI.
 
+This version includes renaming the package from `pybio-utils` to `pylifesci`.
+
 ## [0.2.5] - 2017-12-08
 ### Updated
 - Remove deprecated function call from `mygene_utils`

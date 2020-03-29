@@ -1,23 +1,33 @@
-This repo contains python3 bioinformatics utilities I find useful.
+# Python 3 Life Sciences utilities (pylifesci)
+
+This repo contains python3 bioinformatics utilities.
 
 **Installation**
 
-This package is written in python3. pip can be used to install it:
+This package is available on PyPI.
 
-``pip3 install --verbose -r requirements.txt``
+```
+pip3 install pylifesci
+```
 
-If possible, I recommend installing inside a virtual environment. See
-[here](http://www.simononsoftware.com/virtualenv-tutorial-part-2/>), for example.
+Alternatively, the package can be installed from source.
 
+```
+git clone https://github.com/bmmalone/pylifesci
+cd pylifesci
+pip3 install .
+```
+
+(The "period" at the end is required.)
 
 **Usage**
 
-Please see the [docs](docs/bio.md) for details about the command line usage.
+Please see [the documentation](docs/bio.md) for usage details.
 
 **Uninstallation**
 
-The `bio_utils` package can be removed with pip.
+The `lifesci` package can be removed with pip.
 
 ```
-pip3 uninstall bio_utils
+pip3 uninstall lifesci
 ```
