@@ -18,8 +18,7 @@ import tqdm
 # sequence logos
 ###
 from PIL import Image
-import corebio.seq
-import weblogolib
+import weblogo
 
 # openvax
 from pepdata.amino_acid_alphabet import canonical_amino_acid_letters as aa_letters
@@ -146,14 +145,34 @@ def get_invalid_aa_mask(s_sequences, invalid_aa=_default_invalid_aa):
     return m_invalid
 
     
-def get_sequences_logo(sequences, prior=None, alphabet=None,
-        formatter='pdf', as_pillow=False, **kwargs):
+def get_sequences_logo(
+        sequences=None,
+        probability_matrix=None,
+        prior=None,
+        alphabet=None,
+        formatter='pdf',
+        as_pillow=False,
+        **kwargs):
     """ Create a logo based on a set of sequences.
+
+    Only one of `sequences` and `probability_matrix` should be given.
+
+    By default, this function assumes that `sequences` would be a list of
+    protein sequences, while `probability_matrix` would be for DNA motifs. If
+    this is not the case, then the appropriate `alphabet` should be given.
+
+    The most likely values for `alphabet` are:
+    * weblogo.seq.unambiguous_dna_alphabet
+    * weblogo.seq.unambiguous_rna_alphabet
+    * weblogo.seq.unambiguous_protein_alphabet
 
     Parameters
     ----------
     sequences : iterable of strings
         The sequences
+
+    probability_matrix: 2d np.array
+        The proability_matrix of a motif namedtuple
 
     prior : 1d np.array where len(prior) == len(alphabet)
         A prior to adjust the probabilities as each position
@@ -189,22 +208,40 @@ def get_sequences_logo(sequences, prior=None, alphabet=None,
         If `as_pillow` is `True`, then the pillow image is already created
         and returned.
     """
+    # ensure we have exactly one of `sequences` and `probability_matrix`
+    seq_is_none = (sequences is None)
+    pm_is_none = (probability_matrix is None)
+
+    if (seq_is_none and pm_is_none):
+        msg = ("[get_sequences_logo] exactly one of `sequences` and "
+            "`probability_matrix` must be given")
+        raise TypeError(msg) 
+
     if alphabet is None:
-        alphabet = corebio.seq.unambiguous_protein_alphabet
+        if sequences is not None:
+            alphabet = weblogo.seq.unambiguous_protein_alphabet
+        elif probability_matrix is not None:
+            alphabet = weblogo.seq.unambiguous_dna_alphabet
 
-    # create the SeqList
+    data = None
+    if sequences is not None:
 
-    # it seems like there should be a better way to to this...
-    sequences = '\n'.join(sequences)
-    f = io.StringIO(sequences)
-    sequences = weblogolib.seq_io.array_io.read(f)
-    sequences.alphabet = alphabet
+        # create the SeqList
 
-    data = weblogolib.LogoData.from_seqs(sequences, prior)
-    options = weblogolib.LogoOptions(**kwargs)
-    logo_format = weblogolib.LogoFormat(data, options)
+        # it seems like there should be a better way to to this...
+        sequences = '\n'.join(sequences)
+        f = io.StringIO(sequences)
+        sequences = weblogo.seq_io.array_io.read(f)
+        sequences.alphabet = alphabet
+        data = weblogo.LogoData.from_seqs(sequences, prior)
+    else: # so we have a probability matrix
+        data = weblogo.LogoData.from_counts(
+            alphabet, probability_matrix, prior
+        )
 
-    formatter = weblogolib.formatters[formatter]
+    options = weblogo.LogoOptions(**kwargs)
+    logo_format = weblogo.LogoFormat(data, options)
+    formatter = weblogo.formatters[formatter]
 
     logo = formatter(data, logo_format)
 

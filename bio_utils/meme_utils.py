@@ -10,10 +10,6 @@ import pandas as pd
 
 import pyllars.collection_utils as collection_utils
 
-# web logos
-import corebio.seq
-import weblogolib
-
 meme_motifs = collections.namedtuple(
     "meme_motifs",
     "version,alphabet,strands,background_frequencies,motifs"
@@ -349,52 +345,3 @@ def read_ame(ame_file, method='ranksum'):
     ame_df = collection_utils.remove_nones(ame_df)
     ame_df = pd.DataFrame(ame_df)
     return ame_df
-
-def get_motif_logo(probability_matrix, prior=None, alphabet=None, 
-        formatter='pdf', **kwargs):
-    """ Create a motif logo based on the probability matrix for a motif.
-
-    Parameters
-    ----------
-    probability_matrix: 2d np.array
-        The proability_matrix of a motif namedtuple
-
-    prior: 1d np.array where len(prior) == probability_matrix.shape[1]
-        A prior to adjust the probabilities as each position
-
-    alphabet: corebio.seq.Alphabet, or None
-        The alphabet for creating the motif. If None is given, then the basic
-        DNA alphabet (ACTG) is used.
-
-    formatter: string
-        The format of the image. It must be present in the 
-        weblogolib.formatters dictionary.
-
-    kwargs: key=value pairs
-        Other keyswords to control the image. See weblogolib.LogoOptions for
-        complete details. A few likely keywords are:
-
-        - unit_name: for example, "bits" (default) or "probability"
-        - fineprint: some text to show at the bottom (default: "WebLogo 3.5.0")
-        - show_fineprint: whether to show the fineprint at all
-        - yaxis_scale: this appears to control the yaxis maximum
-        - stack_width: how wide to make each letter
-        - stack_aspect_ratio: the ratio of letter width to height
-
-    Returns
-    -------
-    logo: binary string
-        The raw image data. It can be written to a file opened in binary mode
-        ("wb") or opened as a pillow image ("Image.open(io.BytesIO(logo))")
-    """
-    alphabet = corebio.seq.unambiguous_dna_alphabet
-    
-    data = weblogolib.LogoData.from_counts(alphabet, probability_matrix, prior)
-    options = weblogolib.LogoOptions(**kwargs)
-    logo_format = weblogolib.LogoFormat(data, options)
-
-    formatter = weblogolib.formatters[formatter]
-        
-    logo = formatter(data, logo_format)
-    
-    return logo
