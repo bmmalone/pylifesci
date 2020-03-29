@@ -5,10 +5,11 @@ import argparse
 import pandas as pd
 
 import lifesci.fastx_utils as fastx_utils
-import misc.utils as utils
+import pyllars.utils
+import pyllars.pandas_utils as pd_utils
 
 import logging
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 logger = logging.getLogger(__name__)
 
 def main():
@@ -34,7 +35,7 @@ def main():
 
         read_count = fastx_utils.get_read_count(f, is_fasta=False)
 
-        datasets.append(utils.get_basename(f))
+        datasets.append(pyllars.utils.get_basename(f))
         read_counts.append(read_count)
 
     df = pd.DataFrame()
@@ -44,7 +45,7 @@ def main():
     msg = "Writing data frame to disk"
     logger.info(msg)
 
-    utils.write_df(df, args.out, index=False)
+    pd_utils.write_df(df, args.out, index=False)
 
 
 if __name__ == '__main__':

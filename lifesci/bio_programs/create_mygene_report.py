@@ -5,7 +5,8 @@ import logging
 import pandas as pd
 
 import lifesci.mygene_utils as mygene_utils
-import misc.utils as utils
+import pyllars.logging_utils as logging_utils
+import pyllars.pandas_utils as pd_utils
 
 logger = logging.getLogger(__name__)
 
@@ -48,14 +49,14 @@ def main():
         "is in csv format, then the output will not be compressed. By default, the output "
         "is compressed.", action='store_true')
     
-    utils.add_logging_options(parser)
+    logging_utils.add_logging_options(parser)
     args = parser.parse_args()
-    utils.update_logging(args)
+    logging_utils.update_logging(args)
 
     msg = "Reading the file"
     logger.info(msg)
 
-    df = utils.read_df(args.filename, filetype=args.filetype, sheet=args.sheet, sep=args.sep)
+    df = pd_utils.read_df(args.filename, filetype=args.filetype, sheet=args.sheet, sep=args.sep)
 
     msg = "Extracting gene identifiers"
     logger.info(msg)
@@ -78,7 +79,7 @@ def main():
     msg = "Writing output"
     logger.info(msg)
 
-    utils.write_df(res_df, args.out, filetype=args.filetype, sheet=args.sheet,
+    pd_utils.write_df(res_df, args.out, filetype=args.filetype, sheet=args.sheet,
         do_not_compress=args.do_not_compress, index=False)
 
     msg = "Finished"

@@ -4,13 +4,13 @@ import argparse
 
 import collections
 import lifesci.fastx_utils as fastx_utils
-import misc.utils as utils
+import pyllars.utils
 import tqdm
 
 from contextlib import ExitStack
 
 import logging
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 logger = logging.getLogger(__name__)
 
 stored_read_pair = collections.namedtuple(
@@ -98,15 +98,12 @@ def main():
     logger.info(msg)
 
     with ExitStack() as stack:
-        out_1 = utils.open(args.out_1, 'w', compress=compress)
-        out_2 = utils.open(args.out_2, 'w', compress=compress)
+        out_1 = pyllars.utils.open_file(args.out_1, 'w', compress=compress)
+        out_2 = pyllars.utils.open_file(args.out_2, 'w', compress=compress)
         
         for (seqs, srp) in tqdm.tqdm(seen_reads.items()):
             fastx_utils._write_fastq_entry(out_1, srp.r1_name, seqs[0], srp.r1_qual)
             fastx_utils._write_fastq_entry(out_2, srp.r2_name, seqs[1], srp.r2_qual)
-
-
-
 
 if __name__ == '__main__':
     main()

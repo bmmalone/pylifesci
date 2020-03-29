@@ -5,10 +5,11 @@ import argparse
 import pandas as pd
 
 import lifesci.bam_utils as bam_utils
-import misc.utils as utils
+import pyllars.pandas_utils as pd_utils
+import pyllars.utils
 
 import logging
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 logger = logging.getLogger(__name__)
 
 def main():
@@ -36,7 +37,7 @@ def main():
         num_aligned_reads = bam_utils.count_aligned_reads(f)
         num_uniquely_aligned_reads = bam_utils.count_uniquely_mapping_reads(f)
 
-        datasets.append(utils.get_basename(f))
+        datasets.append(pyllars.utils.get_basename(f))
         aligned_reads.append(num_aligned_reads)
         uniquely_aligned_reads.append(num_uniquely_aligned_reads)
 
@@ -52,7 +53,7 @@ def main():
     msg = "Writing data frame to disk"
     logger.info(msg)
 
-    utils.write_df(df, args.out, index=False)
+    pd_utils.write_df(df, args.out, index=False)
 
 if __name__ == '__main__':
     main()
