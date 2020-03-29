@@ -4,7 +4,7 @@ import argparse
 import logging
 import pandas as pd
 
-import bio_utils.mygene_utils as mygene_utils
+import lifesci.mygene_utils as mygene_utils
 import misc.utils as utils
 
 logger = logging.getLogger(__name__)

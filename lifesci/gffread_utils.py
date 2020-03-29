@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import re
 
-import bio_utils.fastx_utils as fastx_utils
+import lifesci.fastx_utils as fastx_utils
 import misc.parallel as parallel
 
 # build up the header regular expression

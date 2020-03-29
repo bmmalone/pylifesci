@@ -4,7 +4,7 @@ import argparse
 
 from Bio.Seq import translate
 
-import bio_utils.fastx_utils as fastx_utils
+import lifesci.fastx_utils as fastx_utils
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,

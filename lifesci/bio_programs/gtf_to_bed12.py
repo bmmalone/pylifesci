@@ -6,9 +6,9 @@ import logging
 import numpy as np
 import pandas as pd
 
-import bio_utils.bio as bio
-import bio_utils.bed_utils as bed_utils
-import bio_utils.gtf_utils as gtf_utils
+import lifesci.bio as bio
+import lifesci.bed_utils as bed_utils
+import lifesci.gtf_utils as gtf_utils
 import misc.logging_utils as logging_utils
 import misc.parallel as parallel
 import misc.utils as utils

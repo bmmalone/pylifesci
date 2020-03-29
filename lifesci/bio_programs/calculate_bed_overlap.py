@@ -5,8 +5,8 @@ import numpy as np
 
 import pybedtools
 
-import bio_utils.bio as bio
-import bio_utils.bed_utils as bed_utils
+import lifesci.bio as bio
+import lifesci.bed_utils as bed_utils
 import misc.parallel as parallel
 import misc.utils as utils
 

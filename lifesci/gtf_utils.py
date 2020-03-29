@@ -15,7 +15,7 @@ import re
 import shlex
 
 import pyllars.pandas_utils as pd_utils
-import bio_utils.bed_utils as bed_utils
+import lifesci.bed_utils as bed_utils
 
 gtf_field_names = [
     "seqname",
@@ -47,7 +47,7 @@ def read_gtf(filename, sep='\t', comment='#', field_names=None,
                 pandas.read_csv
 
             use_default_field_names (bool) : if this is true, then the column
-                names in bio_utils.gtf_field_names will be used
+                names in lifesci.gtf_field_names will be used
 
             field_names (list of strings) : if use_default_field_names is false,
                 then the columns in the data frame will have these names
@@ -119,7 +119,7 @@ def _get_gtf_entries(bed_entry, feature_type:str, source:str=None,
     The attributes for the gtf entries are taken as: "{field} {val}; ", where
     {col} is the name of the field and {val} is the respective value for all
     fields in bed_entry except for the standard bed12 fields (given by 
-    bio_utils.bed_utils.bed12_field_names).
+    lifesci.bed_utils.bed12_field_names).
     
     Additionally, if id_attribute is specified, then the "id" field in
     the bed entry will be used as the value for that attribute.
@@ -216,7 +216,7 @@ def get_gtf_entries(bed_entry, source:str, id_attribute:str="transcript_id"):
     The attributes for the gtf entries are taken as: "{field} {val}; ", where
     {col} is the name of the field and {val} is the respective value for all
     fields in bed_entry except for the standard bed12 fields (given by 
-    bio_utils.bed_utils.bed12_field_names).
+    lifesci.bed_utils.bed12_field_names).
     
     Additionally, if id_attribute is specified, then the "id" field in
     the bed entry will be used as the value for that attribute.

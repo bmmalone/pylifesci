@@ -24,9 +24,9 @@ import pyllars.validation_utils as validation_utils
 import pyllars.utils    
 
 
-import bio_utils.bam_utils as bam_utils
-import bio_utils.bio as bio
-import bio_utils.fastx_utils as fastx_utils
+import lifesci.bam_utils as bam_utils
+import lifesci.bio as bio
+import lifesci.fastx_utils as fastx_utils
 
 
 import misc.parallel as parallel
@@ -1487,7 +1487,7 @@ def get_all_position_intersections(positions_bed, intervals_bed, logger=logger):
 
             logger (logging.logger): optionally, a non-default logger can be
                 given, in which case it will be used for logging. Otherwise,
-                the bio_utils.bed_utils logger will be used.
+                the lifesci.bed_utils logger will be used.
 
         Returns:
             A list of named 4-tuples with the following names and values:

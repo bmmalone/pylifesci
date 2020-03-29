@@ -19,8 +19,8 @@ import tempfile
 
 import pyllars.pandas_utils as pd_utils
 
-import bio_utils.amino_acid_utils as aa_utils
-import bio_utils.fastx_utils as fastx_utils
+import lifesci.amino_acid_utils as aa_utils
+import lifesci.fastx_utils as fastx_utils
 
 import Bio
 import Bio.pairwise2

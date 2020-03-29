@@ -3,7 +3,7 @@
 import argparse
 import pandas as pd
 
-import bio_utils.bed_utils as bed_utils
+import lifesci.bed_utils as bed_utils
 
 import logging
 import misc.logging_utils as logging_utils

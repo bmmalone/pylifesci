@@ -1,5 +1,5 @@
 ###
-#   This class contains unit and integration tests for bio_utils.bed_utils.
+#   This class contains unit and integration tests for lifesci.bed_utils.
 #   The structure of this file is taken from an old blog post here:
 #       http://blog.jameskyle.org/2010/10/nose-unit-testing-quick-start/
 ###
@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import bio_utils.bed_utils as bed_utils
+import lifesci.bed_utils as bed_utils
 import misc.logging_utils as logging_utils
 import misc.math_utils as math_utils
 
-from bio_utils.bed_utils import interval_overlap
-from bio_utils.bed_utils import transcript_overlap
+from lifesci.bed_utils import interval_overlap
+from lifesci.bed_utils import transcript_overlap
 
 from nose.tools import assert_equal
 from nose.tools import assert_not_equal

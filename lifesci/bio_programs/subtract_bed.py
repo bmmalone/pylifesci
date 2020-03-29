@@ -3,7 +3,7 @@
 import argparse
 import os
 
-import bio_utils.bed_utils as bed_utils
+import lifesci.bed_utils as bed_utils
 import misc.parallel as parallel
 import misc.utils as utils
 

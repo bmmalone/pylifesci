@@ -5,8 +5,8 @@ import logging
 
 import pandas as pd
 
-import bio_utils.bam_utils as bam_utils
-import bio_utils.fastx_utils as fastx_utils
+import lifesci.bam_utils as bam_utils
+import lifesci.fastx_utils as fastx_utils
 import misc.parallel as parallel
 import misc.utils as utils
 import misc.logging_utils as logging_utils
