@@ -29,10 +29,6 @@ def read_bitseq_alphas(filename, header=None, comment='#', sep=' '):
 
         Returns:
             pandas.DataFrame: a data frame with the estimated values as columns
-
-        Imports:
-            pandas
-            
     """
     bitseq_alphas = pd.read_csv(filename.strip(), header=header, comment=comment, sep=sep)
     new_cols = []
@@ -287,6 +283,7 @@ def read_ncbi_taxonomy_nodes_file(nodes_file):
     """ This function parses the nodes.dmp file giving the NCBI taxonomy. It returns it
         as a data frame.
     """
+    # pylint: disable=anomalous-backslash-in-string
     nodes_df = pd.read_csv(nodes_file, sep="\t\|\t", header=None, names=NODES_NAMES, engine='python')
     return nodes_df
 

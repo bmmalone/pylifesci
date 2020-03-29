@@ -17,6 +17,7 @@ import pysam
 
 import pyllars.pandas_utils as pd_utils
 import pyllars.shell_utils as shell_utils
+import pyllars.utils
 
 def check_bam_file(filename, check_index=False, raise_on_error=True, logger=logger):
     """ This function wraps a call to "samtools view" and pipes the output to 
@@ -49,7 +50,7 @@ def check_bam_file(filename, check_index=False, raise_on_error=True, logger=logg
     programs = ['samtools']
     shell_utils.check_programs_exist(programs)
 
-    dev_null = utils.abspath("dev", "null")
+    dev_null = pyllars.utils.abspath("dev", "null")
 
     cmd = "samtools view -h {} > {}".format(filename, dev_null)
 
@@ -128,7 +129,7 @@ def count_unique_reads(bam, **kwargs):
     bam: string or pysam AlignmentFile
         Either an existing AlignmentFile or a path to a bam/sam file
 
-    \*\*kwargs: key-value pairs
+    kwargs: key-value pairs
         Other arguments for the pysam.AlignmentFile constructor. These are
         ignored if bam is already an AlignmentFile.
 
@@ -159,7 +160,7 @@ def count_aligned_reads(bam, **kwargs):
     bam: string or pysam.AlignmentFile
         Either an open AlignmentFile or a path to a bam file
 
-    \*\*kwargs: key-value pairs
+    kwargs: key-value pairs
         Other arguments for the pysam.AlignmentFile constructor. These are
        
     Returns
@@ -185,7 +186,7 @@ def get_length_distribution(bam, progress_bar=False, **kwargs):
     progress_bar: bool
         Whether to show a progress bar
 
-    \*\*kwargs: key-value pairs
+    kwargs: key-value pairs
         Other arguments for the pysam.AlignmentFile constructor. These are
         ignored if bam is already an AlignmentFile.
 
@@ -256,6 +257,8 @@ def count_uniquely_mapping_reads(bam, logger=logger):
     num_uniquely_mapping_reads : int
         The number of reads which map uniquely (i.e., have the "NH:i:1" flag)
     """
+    # we know this is a regular expression, but pylint doesn't
+    # pylint: disable=anomalous-backslash-in-string
     cmd = "samtools view -h {} | grep '^@\|NH:i:1	'| wc -l".format(bam)
     res = shell_utils.check_output(cmd)
     num_uniquely_aligned_reads = int(res.strip())
@@ -300,6 +303,8 @@ def remove_multimapping_reads(align_in, align_out, call=True, tmp=None,
     msg = "Removing multimappers and sorting the remaining reads"
     logger.debug(msg)
 
+    # we know this is a regular expression, but pylint doesn't
+    # pylint: disable=anomalous-backslash-in-string
     cmd = ("samtools view -h {} | grep '^@\|NH:i:1	' | samtools view -bS  - "
             "| samtools sort -  -o {} {}".format(align_in, align_out, sam_tmp_str))
     shell_utils.check_call(cmd, call=call)
