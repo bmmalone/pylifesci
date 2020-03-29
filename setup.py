@@ -97,7 +97,7 @@ def readme():
 
 setup(
     name='lifesci',
-    version='0.2.5',
+    version='0.3.0',
     description="This repo contains python3 life sciences utilities.",
     long_description=readme(),
     long_description_content_type='text/markdown',
