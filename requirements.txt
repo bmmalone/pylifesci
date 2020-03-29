@@ -1,2 +1,0 @@
-git+https://github.com/bmmalone/pymisc-utils.git@0.2.5#egg=pymisc-utils
-.

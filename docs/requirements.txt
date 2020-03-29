@@ -1,0 +1,6 @@
+joblib
+numpy
+matplotlib
+pandas
+pyensembl
+weblogo
