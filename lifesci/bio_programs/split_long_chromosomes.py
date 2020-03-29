@@ -7,9 +7,10 @@ import logging
 import numpy as np
 import pandas as pd
 
-import lifesci.bio as bio
+import lifesci.fastx_utils as fastx_utils
 import lifesci.gtf_utils as gtf_utils
-import misc.utils as utils
+
+import pyllars.logging_utils as logging_utils
 
 import argparse
 
@@ -29,14 +30,14 @@ def main():
     parser.add_argument('--max-size', help="The largest allowed size (in bp) for a "
         "chromosome", type=int, default=default_max_size)
     
-    utils.add_logging_options(parser)
+    logging_utils.add_logging_options(parser)
     args = parser.parse_args()
-    utils.update_logging(args)
+    logging_utils.update_logging(args)
 
     msg = "Splitting fasta sequences"
     logging.info(msg)
 
-    fasta = bio.get_read_iterator(args.fasta, is_fasta=True)
+    fasta = fastx_utils.get_read_iterator(args.fasta, is_fasta=True)
     split_fasta = {}
 
     for name, seq in fasta:
@@ -56,7 +57,7 @@ def main():
     logging.info(msg)
 
     fasta_out = "{}.fa".format(args.out)
-    bio.write_fasta(split_fasta, fasta_out, compress=False, progress_bar=True)
+    fastx_utils.write_fasta(split_fasta, fasta_out, compress=False, progress_bar=True)
 
     msg = "Reading GTF"
     logging.info(msg)

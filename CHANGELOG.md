@@ -4,10 +4,9 @@ All notable changes to the misc tools will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/), 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.3.0] - In progress
+## [0.3.0] - 2020-03-29
 This version includes numerous updates to the internal structure of the code,
-porting the tests to `pytest`, adding initial sphinx documentation, and adding
-the package to PyPI.
+adding initial sphinx documentation, and adding the package to PyPI.
 
 This version includes renaming the package from `pybio-utils` to `pylifesci`.
 
@@ -63,5 +62,3 @@ removed. They will be added to a new
 ## [0.1.2] and previous versions
 
 The initial versions have not been documented in the change log.
-
-

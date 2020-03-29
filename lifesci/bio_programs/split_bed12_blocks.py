@@ -6,9 +6,11 @@ import pandas as pd
 
 import lifesci.bio as bio
 import lifesci.bed_utils as bed_utils
-import misc.logging_utils as logging_utils
+
+import pyllars.collection_utils as collection_utils
+import pyllars.logging_utils as logging_utils
+
 import misc.parallel as parallel
-import misc.utils as utils
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ default_num_groups = 500
 
 def split_all_blocks(bed):
     exons = parallel.apply_df_simple(bed, bed_utils.split_bed12_blocks)
-    exons = utils.flatten_lists(exons)
+    exons = collection_utils.flatten_lists(exons)
     exons = pd.DataFrame(exons)
     return exons
 

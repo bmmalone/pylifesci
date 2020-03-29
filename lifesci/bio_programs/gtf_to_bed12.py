@@ -9,9 +9,10 @@ import pandas as pd
 import lifesci.bio as bio
 import lifesci.bed_utils as bed_utils
 import lifesci.gtf_utils as gtf_utils
-import misc.logging_utils as logging_utils
+
+import pyllars.collection_utils as collection_utils
+import pyllars.logging_utils as logging_utils
 import misc.parallel as parallel
-import misc.utils as utils
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +121,7 @@ def main():
 
     cds_transcript_ids = parallel.apply_parallel_split(cds_df, args.num_cpus, 
             get_transcript_ids, progress_bar=True, num_groups=args.num_groups)
-    cds_transcript_ids = utils.flatten_lists(cds_transcript_ids)
+    cds_transcript_ids = collection_utils.flatten_lists(cds_transcript_ids)
     cds_df['transcript_id'] = cds_transcript_ids
 
     msg = "Calculating CDS genomic start and end positions"
@@ -145,7 +146,7 @@ def main():
 
     exon_transcript_ids = parallel.apply_parallel_split(exons, args.num_cpus, 
             get_transcript_ids, progress_bar=True, num_groups=args.num_groups)
-    exon_transcript_ids = utils.flatten_lists(exon_transcript_ids)
+    exon_transcript_ids = collection_utils.flatten_lists(exon_transcript_ids)
     exons['transcript_id'] = exon_transcript_ids
 
     exons['length'] = exons['end'] - exons['start'] + 1

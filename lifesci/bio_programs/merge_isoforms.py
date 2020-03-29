@@ -13,10 +13,9 @@ import sys
 import lifesci.bio as bio
 import lifesci.bed_utils as bed_utils
 import lifesci.gtf_utils as gtf_utils
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 import misc.parallel as parallel
 import misc.slurm as slurm
-import misc.utils as utils
 
 logger = logging.getLogger(__name__)
 

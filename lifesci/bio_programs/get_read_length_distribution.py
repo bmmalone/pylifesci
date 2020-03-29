@@ -8,8 +8,10 @@ import pandas as pd
 import lifesci.bam_utils as bam_utils
 import lifesci.fastx_utils as fastx_utils
 import misc.parallel as parallel
-import misc.utils as utils
-import misc.logging_utils as logging_utils
+
+import pyllars.pandas_utils as pd_utils
+import pyllars.logging_utils as logging_utils
+import pyllars.utils
 
 logger = logging.getLogger(__name__)
 
@@ -41,20 +43,20 @@ def guess_file_type(filename):
 # file type-specific calls to the relevant length distribution calculators
 def get_bam_length_distribution_df(fn):
     length_distribution_df = bam_utils.get_length_distribution(fn)
-    basename = utils.get_basename(fn)
+    basename = pyllars.utils.get_basename(fn)
     length_distribution_df['basename'] = basename
     return length_distribution_df
 
 def get_fasta_length_distribution_df(fn):
     length_distribution_df = fastx_utils.get_length_distribution(fn, is_fasta=True)
-    basename = utils.get_basename(fn)
+    basename = pyllars.utils.get_basename(fn)
     length_distribution_df['basename'] = basename
     return length_distribution_df
 
 
 def get_fastq_length_distribution_df(fn):
     length_distribution_df = fastx_utils.get_length_distribution(fn, is_fasta=False)
-    basename = utils.get_basename(fn)
+    basename = pyllars.utils.get_basename(fn)
     length_distribution_df['basename'] = basename
     return length_distribution_df
 
@@ -120,7 +122,7 @@ def main():
     msg = "Writing counts to disk"
     logger.info(msg)
 
-    utils.write_df(length_distribution_df, args.out, index=False)
+    pd_utils.write_df(length_distribution_df, args.out, index=False)
 
 if __name__ == '__main__':
     main()

@@ -5,14 +5,14 @@ import argparse
 import lifesci.bed_utils as bed_utils
 
 import logging
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 logger = logging.getLogger(__name__)
 
 default_bed_y = 12
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="The script \downcasts\" a bed12+ file to a bed12 file. "
+        description="The script \"downcasts\" a bed12+ file to a bed12 file. "
         "Optionally, it can down cast to fewer columns. By default, it also "
         "names the columns (using bed comments) according to lifesci."
         "bed_utils.bed12_field_names.")

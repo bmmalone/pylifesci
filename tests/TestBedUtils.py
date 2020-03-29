@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 
 import lifesci.bed_utils as bed_utils
-import misc.logging_utils as logging_utils
-import misc.math_utils as math_utils
+import pyllars.logging_utils as logging_utils
+import pyllars.math_utils as math_utils
 
 from lifesci.bed_utils import interval_overlap
 from lifesci.bed_utils import transcript_overlap

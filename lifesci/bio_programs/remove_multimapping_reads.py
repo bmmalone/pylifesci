@@ -4,7 +4,7 @@ import argparse
 import lifesci.bam_utils as bam_utils
 
 import logging
-import misc.logging_utils as logging_utils
+import pyllars.logging_utils as logging_utils
 logger = logging.getLogger(__name__)
 
 default_tmp = None

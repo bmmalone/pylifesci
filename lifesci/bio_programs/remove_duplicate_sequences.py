@@ -4,8 +4,7 @@ import argparse
 import logging
 import lifesci.fastx_utils as fastx_utils
 
-import misc.logging_utils as logging_utils
-import misc.utils as utils
+import pyllars.logging_utils as logging_utils
 
 logger = logging.getLogger(__name__)
 
