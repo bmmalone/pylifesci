@@ -41,6 +41,7 @@ install_requires = [
     'biopython',
     'cython',
     'docopt',
+    'goatools', #https://github.com/tanghaibao/goatools
     'graphviz',
     'joblib',
     'mygene'
@@ -51,8 +52,11 @@ install_requires = [
     'pandas',
     'pyensembl',
     'pyllars',
+    'pysam',
     'scipy',
+    'sexpdata', #https://github.com/tkf/sexpdata
     'tqdm',
+    'weblogo', #https://github.com/WebLogo/weblogo
     'xlrd',
 ]
 
