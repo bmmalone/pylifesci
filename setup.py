@@ -46,6 +46,7 @@ install_requires = [
     'matplotlib',
     'mhcnames',
     'pandas',
+    'pepdata',
     'pillow',
     'pyensembl',
     'pyllars',
