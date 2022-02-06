@@ -66,20 +66,22 @@ class PeptideDataset(object):
 
         peptides = df_peptides[self.peptide_column]
 
-        all_filters = [
-            FILTER_MAP[f](peptides) for f in self.filters
-        ]
+        if self.filters is not None:
+            all_filters = [
+                FILTER_MAP[f](peptides) for f in self.filters
+            ]
 
-        m_filters = pd_utils.intersect_masks(all_filters)
+            m_filters = pd_utils.intersect_masks(all_filters)
 
-        df_peptides = df_peptides[m_filters].reset_index(drop=True)
+            df_peptides = df_peptides[m_filters].reset_index(drop=True)
+
         return df_peptides
 
     @classmethod
     def load(clazz,
             filename:str,
             peptide_column:str,
-            filters:Sequence[str],
+            filters:Optional[Sequence[str]]=None,
             loading_parameters:Mapping=dict()) -> pd.DataFrame:
         
         d = clazz(
