@@ -1,5 +1,15 @@
 from setuptools import find_packages, setup
 
+def _safe_read_lines(f, remove_git_lines=True):
+    with open(f) as in_f:
+        r = in_f.readlines()
+    r = [l.strip() for l in r]
+
+    if remove_git_lines:
+        r = [ l for l in r if not l.startswith("git+ssh") ]
+
+    return r
+
 bio_console_scripts = [
     'bam-to-wiggle=lifesci.bio_programs.bam_to_wiggle:main',
     'bedx-to-bedy=lifesci.bio_programs.bedx_to_bedy:main',
@@ -37,22 +47,7 @@ bio_console_scripts = [
 
 console_scripts = bio_console_scripts
 
-install_requires = [
-    'biopython',
-    'goatools', #https://github.com/tanghaibao/goatools
-    'joblib',
-    'mygene',
-    'numpy',
-    'matplotlib',
-    'mhcnames',
-    'pandas',
-    'pyensembl',
-    'pyllars',
-    'pysam',
-    'sexpdata', #https://github.com/tkf/sexpdata
-    'tqdm',
-    'weblogo', #https://github.com/WebLogo/weblogo
-]
+install_requires = _safe_read_lines("./requirements.txt")
 
 tests_require = [
     'pytest',
@@ -88,7 +83,6 @@ extras = {
 classifiers=[
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
 ]
 
 def readme():
@@ -97,7 +91,7 @@ def readme():
 
 setup(
     name='lifesci',
-    version='0.3.0',
+    version='0.3.1',
     description="This repo contains python3 life sciences utilities.",
     long_description=readme(),
     long_description_content_type='text/markdown',

@@ -7,7 +7,7 @@ This repo contains python3 bioinformatics utilities.
 This package is available on PyPI.
 
 ```
-pip3 install pylifesci
+pip3 install lifesci
 ```
 
 Alternatively, the package can be installed from source.
@@ -22,7 +22,7 @@ pip3 install .
 
 **Usage**
 
-Please see [the documentation](https://pylifesci.readthedocs.io/en/) for usage details.
+Please see [the documentation](https://pylifesci.readthedocs.io/) for usage details.
 
 **Uninstallation**
 
