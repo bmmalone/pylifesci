@@ -83,7 +83,6 @@ extras = {
 classifiers=[
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
 ]
 
 def readme():
@@ -92,7 +91,7 @@ def readme():
 
 setup(
     name='lifesci',
-    version='0.3.0',
+    version='0.3.1',
     description="This repo contains python3 life sciences utilities.",
     long_description=readme(),
     long_description_content_type='text/markdown',
