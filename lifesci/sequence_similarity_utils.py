@@ -257,6 +257,7 @@ def get_similarity_from_blast_hits(
     gapextend: int = 1,
     gapopen: int = 9,
     word_size: int = 3,
+    max_target_seqs: int = 500,
 ):
 
     # for logging
@@ -297,6 +298,7 @@ def get_similarity_from_blast_hits(
         gapextend=gapextend,
         gapopen=gapopen,
         word_size=word_size,
+        max_target_seqs=max_target_seqs
     )
 
     msg = "calling blastp. command: '{}'".format(blp)
@@ -325,6 +327,7 @@ def get_similarity_from_blast_hits(
     # keep only matches which pass all filters
     m_to_keep = ~m_duplicates & ~m_invalid_aa
     df_blastp = df_blastp[m_to_keep]
+    df_blastp = df_blastp.reset_index(drop=True)
 
     msg = "[{}]: calculating sequence similarities".format(caller)
     logger.info(msg)
