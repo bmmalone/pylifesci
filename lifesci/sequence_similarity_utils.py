@@ -30,9 +30,7 @@ from Bio.Blast.Applications import NcbiblastpCommandline
 
 from typing import Optional
 
-_DEFAULT_BLAST_OUT_FORMAT = (
-    '"6 qseqid qseq sseqid sseq qcovs pident mismatch evalue bitscore gapopen gaps"'
-)
+_DEFAULT_BLAST_OUT_FORMAT = '"6 qseqid qseq sseqid sseq qcovs pident mismatch evalue bitscore gapopen gaps qstart qend sstart send"'
 
 _DEFAULT_BLAST_OUT_COLUMNS = [
     "query_ID",
@@ -46,6 +44,10 @@ _DEFAULT_BLAST_OUT_COLUMNS = [
     "bitscore",
     "gapopen",
     "gaps",
+    "query_seq_alignment_start",
+    "query_seq_alignment_end",
+    "database_seq_alignment_start",
+    "database_seq_alignment_end",
 ]
 
 DEFAULT_SCORING_MATRIX = Bio.SubsMat.MatrixInfo.blosum62
@@ -57,7 +59,7 @@ DEFAULT_E_THRESHOLD = 1e10
 # SNebula-related helpers
 ###
 def _calc_l_xi(l_x, l_i):
-    """ Calculate the length normalization term for SNebula """
+    """Calculate the length normalization term for SNebula"""
     num = np.abs(l_i - l_x)
     den = l_x
 
@@ -298,7 +300,7 @@ def get_similarity_from_blast_hits(
         gapextend=gapextend,
         gapopen=gapopen,
         word_size=word_size,
-        max_target_seqs=max_target_seqs
+        max_target_seqs=max_target_seqs,
     )
 
     msg = "calling blastp. command: '{}'".format(blp)
