@@ -25,7 +25,6 @@ import lifesci.fastx_utils as fastx_utils
 
 import Bio
 import Bio.pairwise2
-import Bio.SubsMat.MatrixInfo
 from Bio.Blast.Applications import NcbiblastpCommandline
 
 from typing import Optional
@@ -49,6 +48,12 @@ _DEFAULT_BLAST_OUT_COLUMNS = [
     "database_seq_alignment_start",
     "database_seq_alignment_end",
 ]
+
+# N.B. This currently raises a deprecation error, but using `Bio.Align.substitution_matrices`
+# is significantly slower than using Bio.SubsMat.MatrixInfo
+# import Bio.Align.substitution_matrices
+# DEFAULT_SCORING_MATRIX = Bio.Align.substitution_matrices.load("BLOSUM62")
+import Bio.SubsMat.MatrixInfo
 
 DEFAULT_SCORING_MATRIX = Bio.SubsMat.MatrixInfo.blosum62
 
