@@ -363,12 +363,18 @@ def get_similarity_from_blast_hits(
         # concat_cols = ["normalized_similarity"]
         concat_cols = ["snebula_score"]
         df_similarities = pd.concat([df_blastp, df_similarities[concat_cols]], axis=1)
-        df_similarities["query_seq_aligned_len"] = df_similarities[
-            "query_seq_aligned"
-        ].str.len()
-        df_similarities["database_seq_aligned_len"] = df_similarities[
-            "database_seq_aligned"
-        ].str.len()
+
+        q_lens = df_similarities["query_seq_aligned"].str.len()
+        df_similarities["query_seq_gapped_aligned_len"] = q_lens
+
+        q_lens = df_similarities["query_seq_aligned_ungapped"].str.len()
+        df_similarities["query_seq_ungapped_aligned_len"] = q_lens
+
+        d_lens = df_similarities["database_seq_aligned"].str.len()
+        df_similarities["database_seq_gapped_aligned_len"] = d_lens
+
+        d_lens = df_similarities["database_seq_aligned_ungapped"].str.len()
+        df_similarities["database_seq_ungapped_aligned_len"] = d_lens
 
     if delete_query_output_folder:
         shutil.rmtree(query_output_folder)
