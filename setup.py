@@ -1,14 +1,20 @@
+# !/usr/bin/env python
+import datetime
+import distutils.cmd
+import os
+import subprocess
+
+from typing import Dict, List
+
 from setuptools import find_packages, setup
 
-def _safe_read_lines(f, remove_git_lines=True):
-    with open(f) as in_f:
-        r = in_f.readlines()
-    r = [l.strip() for l in r]
-
-    if remove_git_lines:
-        r = [ l for l in r if not l.startswith("git+ssh") ]
-
-    return r
+if os.path.exists(".git"):
+    setup_kwargs: Dict = dict(
+        use_scm_version=True,
+        setup_requires=["setuptools_scm"],
+    )
+else:
+    setup_kwargs: Dict = dict(version="0+d" + datetime.date.today().strftime("%Y%m%d"))
 
 bio_console_scripts = [
     'bam-to-wiggle=lifesci.bio_programs.bam_to_wiggle:main',
@@ -47,67 +53,117 @@ bio_console_scripts = [
 
 console_scripts = bio_console_scripts
 
-install_requires = _safe_read_lines("./requirements.txt")
-
-tests_require = [
-    'pytest',
-    'coverage',
-    'pytest-cov',
-    'coveralls',
-    'pytest-runner',
+requires: List[str] = [
+    "biopython",
+    "goatools",
+    "joblib",
+    "mygene",
+    "numpy",
+    "matplotlib",
+    "mhcnames",
+    "pandas",
+    "pepdata",
+    "pillow",
+    "pyensembl",
+    "pyllars",
+    "pysam",
+    "sexpdata",
+    "tqdm",
+    "weblogo",
 ]
-
-docs_require = [
-    'sphinx',
-    'sphinx_rtd_theme',
-]
-
-pypi_requires = [
-    'twine',
-    'readme_renderer[md]'
-]
-
-all_requires = (
-    tests_require + 
-    docs_require +
-    pypi_requires
-)
 
 extras = {
-    'test': tests_require,
-    'all': all_requires,
-    'docs': docs_require,
-    'pypi': pypi_requires
+    "dev": [
+        "codecov==2.1.12",
+        "coverage==6.5.0",
+        "docutils==0.19",
+        "pylint==2.15.5",
+        "pytest-console-scripts==1.3.1",
+        "pytest-cov==4.0.0",
+        "pytest-datadir==1.4.1",
+        "pytest==7.2.0",
+        "setuptools_scm==7.1.0",
+        "sphinx-argparse==0.3.2",
+        "Sphinx==6.1.3",
+        'sphinx_rtd_theme',
+        'coveralls',
+        'pytest-runner',
+        'twine',
+        'readme_renderer[md]',
+    ]
 }
+
 
 classifiers=[
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
 ]
 
-def readme():
-    with open('README.md') as f:
-        return f.read()
+class DepsCommand(distutils.cmd.Command):
+    """
+    Custom command to install dependencies only, this
+    is intended to be used to take advantage of Docker's
+    caching.
+    This installs into the user home so don't run it locally, use
+    "pip install .[dev]" inside a virtual environment instead.
+    """
+
+    description = "Install dependencies"
+    user_options = [
+        # The format is (long option, short option, description).
+        ("env=", None, "Name of environment")
+    ]
+
+    def initialize_options(self) -> None:
+        self.env = ""
+
+    def finalize_options(self) -> None:
+        if self.env:
+            assert self.env in ["dev"], "env: {} not available".format(self.env)
+
+    def run(self) -> None:
+        command = ["pip", "install", "--user"]
+        command.extend(requires)
+        if self.env:
+            command.extend(extras["dev"])
+        if len(command) == 3:
+            self.announce("No dependencies to install", level=distutils.log.INFO)
+            return
+        self.announce(
+            "Running command: %s" % " ".join(command), level=distutils.log.INFO
+        )
+        subprocess.check_call(command)
+
+
+def readme() -> str:
+    try:
+        return "\n\n".join([open("README.md").read()])
+    except:
+        return ""
+
+def description() -> str:
+    """ The short description for this project """
+    desc = "This repo contains python3 life sciences utilities."
+    return desc
+
 
 setup(
-    name='lifesci',
-    version='0.3.1',
-    description="This repo contains python3 life sciences utilities.",
-    long_description=readme(),
-    long_description_content_type='text/markdown',
-    keywords="bioinformatics utilities",
-    url="https://github.com/bmmalone/pylifesci",
     author="Brandon Malone",
     author_email="bmmalone@gmail.com",
-    license='MIT',
     classifiers=classifiers,
-    packages=find_packages(),
-    install_requires = install_requires,
-    include_package_data=True,
-    tests_require=tests_require,
+    cmdclass={"deps": DepsCommand},
+    description=description(),
+    entry_points={"console_scripts": console_scripts},
     extras_require=extras,
-    entry_points = {
-        'console_scripts': console_scripts
-    },
-    zip_safe=False
+    include_package_data=True,
+    install_requires=requires,
+    keywords="bioinformatics utilities",
+    license='MIT',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    name='lifesci',
+    packages=find_packages(),
+    url="https://github.com/bmmalone/pylifesci",
+    zip_safe=False,
+    **setup_kwargs,
 )
