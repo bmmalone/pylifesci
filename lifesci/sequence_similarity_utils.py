@@ -9,7 +9,6 @@ The blast helpers are largely wrappers around the blast modules from BioPython.
     http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc96
 """
 import logging
-
 logger = logging.getLogger(__name__)
 
 import numpy as np
@@ -143,7 +142,6 @@ def get_normalized_similarity(
     -----------
     {mutated,reference}_epitope : str
         The respective epitope sequences. They can have different lengths.
-
     scoring_matrix : dict
         A dictionary which maps two-tuples to scores. Each element in the two
         tuples are amino acids, and the value gives the score of aligning the
@@ -184,7 +182,6 @@ def get_pairwise_normalized_similarity(
     -----------
     epitope_{1,2} : str
         The respective epitope sequences. They can have different lengths.
-
     scoring_matrix : dict
         A dictionary which maps two-tuples to scores. Each element in the two
         tuples are amino acids, and the value gives the score of aligning the
