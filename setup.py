@@ -10,8 +10,8 @@ from setuptools import find_packages, setup
 
 if os.path.exists(".git"):
     setup_kwargs: Dict = dict(
-        use_scm_version=True,
         setup_requires=["setuptools_scm"],
+        use_scm_version={'write_to': 'lifesci/_version.py'},
     )
 else:
     setup_kwargs: Dict = dict(version="0+d" + datetime.date.today().strftime("%Y%m%d"))

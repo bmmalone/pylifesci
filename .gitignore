@@ -1,5 +1,8 @@
 .vscode
 
+# versioning
+lifesci/_version.py
+
 __pycache__
 *egg-info
 .ipynb_checkpoints
